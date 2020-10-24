@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 import { app, BrowserWindow, Tray } from 'electron';
+import ElectronStore = require('electron-store');
 
 import { SpotifyService } from './services/SpotifyService';
 import { SlackService } from './services/SlackService';
@@ -15,8 +16,10 @@ let tray: Tray;
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
+  const store = new ElectronStore();
+
   const spotifyService = new SpotifyService();
-  const slackService = new SlackService();
+  const slackService = new SlackService(store);
 
   const playerController = new PlayerController(spotifyService, slackService);
 

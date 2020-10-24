@@ -21,6 +21,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "dotenv": "^8.2.0",
+    "electron-store": "^6.0.1",
     "electron-util": "^0.14.2",
     "query-string": "^6.13.6",
     "run-applescript": "^4.0.0"

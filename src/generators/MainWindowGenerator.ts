@@ -19,34 +19,50 @@ export class MainWindowGenerator {
       webPreferences: {
         devTools: is.development,
         nodeIntegration: true,
-        backgroundThrottling: true
+        backgroundThrottling: true,
+        worldSafeExecuteJavaScript: true,
+        contextIsolation: true,
+        preload: path.join(__dirname, '../preload.js')
       },
       frame: false,
       fullscreenable: false,
       resizable: false,
-      show: false
+      show: is.development
     });
 
     if (is.development) {
-      // mainWindow.webContents.openDevTools({ mode: 'detach' });
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
       mainWindow.loadURL('http://localhost:3000');
     } else {
       mainWindow.loadURL(`file://${path.join(__dirname, '../dist/client/index.html')}`);
     }
 
     mainWindow.webContents.on('will-redirect', (event: any, oldUrl: any, newUrl: any) => {
-      this.handleAuthRedirect(oldUrl);
+      const isAuthorized = this.handleAuthRedirect(oldUrl);
+
+      console.log({ isAuthorized });
+
+      if (isAuthorized) {
+        mainWindow.webContents.send('message-from-main', {
+          type: 'AUTH',
+          message: { isAuthorized: true }
+        });
+      }
     });
 
     return mainWindow;
   };
 
-  private handleAuthRedirect(url: string) {
+  private handleAuthRedirect(url: string): boolean {
+    let isAuthorized = false;
     const parsedQueryString = qs.parseUrl(url);
     const { code } = parsedQueryString.query;
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
       this.slackService.exchangeCodeForAccessToken(code as string);
+      isAuthorized = true;
     }
+
+    return isAuthorized;
   }
 }

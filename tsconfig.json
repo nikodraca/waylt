@@ -8,7 +8,8 @@
     "jsx": "react",
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "target": "ES6"
   },
   "include": [
     "src/**/*"
