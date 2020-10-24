@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as qs from 'query-string';
 
 export class SlackService {
-  accessToken?: string;
+  private accessToken?: string;
 
   constructor() {}
 
@@ -21,8 +21,12 @@ export class SlackService {
     this.accessToken = res.data.access_token;
   }
 
+  isAuthenticated(): boolean {
+    return !!this.accessToken;
+  }
+
   async postMessage(message: string) {
-    if (this.accessToken) {
+    if (this.isAuthenticated()) {
       await axios.post(
         `https://slack.com/api/users.profile.set`,
         {

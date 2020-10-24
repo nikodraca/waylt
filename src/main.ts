@@ -1,92 +1,32 @@
 require('dotenv').config();
 
 import { app, BrowserWindow, Tray } from 'electron';
-import * as path from 'path';
-import { is } from 'electron-util';
-import * as qs from 'query-string';
 
 import { SpotifyService } from './services/SpotifyService';
 import { SlackService } from './services/SlackService';
+import { MainWindowGenerator } from './generators/MainWindowGenerator';
+import { TrayGenerator } from './generators/TrayGenerator';
+import { PlayerController } from './controllers/PlayerController';
 
 let mainWindow: BrowserWindow;
 let tray: Tray;
-let spotifyService: SpotifyService;
-let slackService: SlackService;
-
-const createMainWindow = () => {
-  mainWindow = new BrowserWindow({
-    backgroundColor: '#fff',
-    width: 500,
-    height: 500,
-    webPreferences: {
-      devTools: is.development,
-      nodeIntegration: true,
-      backgroundThrottling: false
-    },
-    frame: false,
-    fullscreenable: false,
-    resizable: false,
-    show: false
-  });
-
-  if (is.development) {
-    // mainWindow.webContents.openDevTools({ mode: 'detach' });
-    mainWindow.loadURL('http://localhost:3000');
-  } else {
-    mainWindow.loadURL(`file://${path.join(__dirname, '../dist/client/index.html')}`);
-  }
-
-  mainWindow.webContents.on('will-redirect', function (event: any, oldUrl: any, newUrl: any) {
-    const parsedQueryString = qs.parseUrl(oldUrl);
-    const { code } = parsedQueryString.query;
-
-    if (code && Object.keys(parsedQueryString.query).includes('state')) {
-      slackService.exchangeCodeForAccessToken(code as string);
-    }
-  });
-};
-
-const createTray = () => {
-  tray = new Tray(path.join(__dirname, '../static/img/icon.png'));
-  tray.setIgnoreDoubleClickEvents(true);
-
-  tray.on('click', () => {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide();
-    } else {
-      const windowBounds = mainWindow.getBounds();
-      const trayBounds = tray.getBounds();
-      const x = Math.round(trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2);
-      const y = Math.round(trayBounds.y + trayBounds.height);
-
-      mainWindow.setPosition(x, y, false);
-      mainWindow.show();
-      mainWindow.setVisibleOnAllWorkspaces(true);
-      mainWindow.focus();
-      mainWindow.setVisibleOnAllWorkspaces(false);
-    }
-
-    app.dock.hide();
-  });
-};
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  createMainWindow();
-  createTray();
+  const spotifyService = new SpotifyService();
+  const slackService = new SlackService();
 
-  spotifyService = new SpotifyService();
-  slackService = new SlackService();
+  const playerController = new PlayerController(spotifyService, slackService);
 
-  setInterval(async () => {
-    const currentTrack = await spotifyService.getTrackAndArtist();
+  const mainWindowGenerator = new MainWindowGenerator(slackService);
+  mainWindow = mainWindowGenerator.createMainWindow();
 
-    if (spotifyService.isNewTrackPlaying(currentTrack)) {
-      await slackService.postMessage(currentTrack);
-    }
-  }, 1000);
+  const trayGenerator = new TrayGenerator(mainWindow);
+  tray = trayGenerator.createTray();
+
+  playerController.startListening();
 
   app.dock.hide();
 });

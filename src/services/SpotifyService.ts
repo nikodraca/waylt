@@ -20,10 +20,10 @@ export class SpotifyService {
   }
 
   isNewTrackPlaying(currentTrack: string): boolean {
-    if (currentTrack !== this.lastTrack) {
-      this.lastTrack = currentTrack;
-      return true;
-    }
-    return false;
+    return currentTrack !== this.lastTrack;
+  }
+
+  setLastTrack(track: string) {
+    this.lastTrack = track;
   }
 }
