@@ -42,6 +42,7 @@ function App() {
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}
           playerPreferences={playerPreferences}
+          ipcRenderer={ipcRenderer}
         />
       ) : (
         <AuthContainer slackAuthUrl={slackAuthUrl} />

@@ -15,6 +15,10 @@ export class PlayerController {
   }
 
   async updateIfNewTrack(): Promise<boolean> {
+    if (this.isIncognito()) {
+      return false;
+    }
+
     let wasUpdated = false;
     const currentTrack = await this.spotifyService.getTrackAndArtist();
 
@@ -45,7 +49,7 @@ export class PlayerController {
 
   private isIncognito(): boolean {
     if (!this.store.has('isIncognito')) {
-      this.store.set('isIncognito', true);
+      this.store.set('isIncognito', false);
     }
 
     return !!this.store.get('isIncognito');
@@ -55,5 +59,9 @@ export class PlayerController {
     return {
       isIncognito: this.isIncognito()
     };
+  }
+
+  setPlayerPreference(key: keyof PlayerPreferences, value: any) {
+    this.store.set(key, value);
   }
 }

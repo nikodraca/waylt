@@ -54,18 +54,26 @@ export class MainWindowGenerator {
       }
     );
 
-    ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, data: Message) => {
-      if (data.type === 'AUTH') {
+    ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, { type }: Message) => {
+      if (type === 'AUTH') {
         this.sendMessage(mainWindow, {
           type: 'AUTH',
           body: this.playerController.isUserAuthenticated()
         });
-      } else if (data.type === 'CURRENTLY_PLAYING') {
+      } else if (type === 'CURRENTLY_PLAYING') {
         this.sendMessage(mainWindow, {
           type: 'CURRENTLY_PLAYING',
           body: this.playerController.getCurrentlyPlayingTrack()
         });
-      } else if (data.type === 'PLAYER_PREFERENCES') {
+      } else if (type === 'PLAYER_PREFERENCES') {
+        this.sendMessage(mainWindow, {
+          type: 'PLAYER_PREFERENCES',
+          body: this.playerController.getPlayerPreferences()
+        });
+      } else if (type === 'TOGGLE_INCOGNITO') {
+        const playerPreferences = this.playerController.getPlayerPreferences();
+        this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
+
         this.sendMessage(mainWindow, {
           type: 'PLAYER_PREFERENCES',
           body: this.playerController.getPlayerPreferences()
