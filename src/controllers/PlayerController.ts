@@ -43,9 +43,17 @@ export class PlayerController {
     return this.spotifyService.getLastTrack();
   }
 
+  private isIncognito(): boolean {
+    if (!this.store.has('isIncognito')) {
+      this.store.set('isIncognito', true);
+    }
+
+    return !!this.store.get('isIncognito');
+  }
+
   getPlayerPreferences(): PlayerPreferences {
     return {
-      isIncognito: !!this.store.get('isIncognito')
+      isIncognito: this.isIncognito()
     };
   }
 }
