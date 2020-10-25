@@ -1,13 +1,17 @@
 import { SpotifyService } from '../services/SpotifyService';
 import { SlackService } from '../services/SlackService';
+import ElectronStore = require('electron-store');
+import { PlayerPreferences } from '../types';
 
 export class PlayerController {
   private spotifyService: SpotifyService;
   private slackService: SlackService;
+  private store: ElectronStore;
 
-  constructor(spotifyService: SpotifyService, slackService: SlackService) {
+  constructor(spotifyService: SpotifyService, slackService: SlackService, store: ElectronStore) {
     this.spotifyService = spotifyService;
     this.slackService = slackService;
+    this.store = store;
   }
 
   async updateIfNewTrack(): Promise<boolean> {
@@ -37,5 +41,11 @@ export class PlayerController {
 
   getCurrentlyPlayingTrack(): string {
     return this.spotifyService.getLastTrack();
+  }
+
+  getPlayerPreferences(): PlayerPreferences {
+    return {
+      isIncognito: !!this.store.get('isIncognito')
+    };
   }
 }

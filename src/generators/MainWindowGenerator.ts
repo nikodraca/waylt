@@ -65,6 +65,11 @@ export class MainWindowGenerator {
           type: 'CURRENTLY_PLAYING',
           body: this.playerController.getCurrentlyPlayingTrack()
         });
+      } else if (data.type === 'PLAYER_PREFERENCES') {
+        this.sendMessage(mainWindow, {
+          type: 'PLAYER_PREFERENCES',
+          body: this.playerController.getPlayerPreferences()
+        });
       }
     });
 
