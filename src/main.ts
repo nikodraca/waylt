@@ -21,15 +21,13 @@ app.on('ready', async () => {
   const spotifyService = new SpotifyService();
   const slackService = new SlackService(store);
 
-  const playerController = new PlayerController(spotifyService, slackService);
+  const playerController = new PlayerController(spotifyService, slackService, store);
 
-  const mainWindowGenerator = new MainWindowGenerator(slackService);
+  const mainWindowGenerator = new MainWindowGenerator(playerController);
   mainWindow = mainWindowGenerator.createMainWindow();
 
   const trayGenerator = new TrayGenerator(mainWindow);
   tray = trayGenerator.createTray();
-
-  playerController.startListening();
 
   app.dock.hide();
 });

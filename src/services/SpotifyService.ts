@@ -26,4 +26,8 @@ export class SpotifyService {
   setLastTrack(track: string) {
     this.lastTrack = track;
   }
+
+  getLastTrack() {
+    return this.lastTrack;
+  }
 }
