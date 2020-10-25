@@ -1,16 +1,21 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { is } from 'electron-util';
 import * as qs from 'query-string';
-import { SlackService } from '../services/SlackService';
+import { PlayerController } from '../controllers/PlayerController';
+import { Message } from '../types';
 
 export class MainWindowGenerator {
-  slackService: SlackService;
+  playerController: PlayerController;
 
-  constructor(slackService: SlackService) {
-    this.slackService = slackService;
+  constructor(playerController: PlayerController) {
+    this.playerController = playerController;
   }
 
+  /**
+   * Set up the BrowserWindow and apply all event listeners/handlers
+   * The playerController should handle all business logic here
+   */
   createMainWindow = (): BrowserWindow => {
     const mainWindow = new BrowserWindow({
       backgroundColor: '#fff',
@@ -21,7 +26,6 @@ export class MainWindowGenerator {
         nodeIntegration: true,
         backgroundThrottling: true,
         worldSafeExecuteJavaScript: true,
-        contextIsolation: true,
         preload: path.join(__dirname, '../preload.js')
       },
       frame: false,
@@ -37,18 +41,43 @@ export class MainWindowGenerator {
       mainWindow.loadURL(`file://${path.join(__dirname, '../dist/client/index.html')}`);
     }
 
-    mainWindow.webContents.on('will-redirect', (event: any, oldUrl: any, newUrl: any) => {
-      const isAuthorized = this.handleAuthRedirect(oldUrl);
+    mainWindow.webContents.on(
+      'will-redirect',
+      (event: Electron.IpcMainEvent, oldUrl: any, newUrl: any) => {
+        const isAuthorized = this.handleAuthRedirect(oldUrl);
+        if (isAuthorized) {
+          this.sendMessage(mainWindow, {
+            type: 'AUTH',
+            body: isAuthorized
+          });
+        }
+      }
+    );
 
-      console.log({ isAuthorized });
-
-      if (isAuthorized) {
-        mainWindow.webContents.send('message-from-main', {
+    ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, data: Message) => {
+      if (data.type === 'AUTH') {
+        this.sendMessage(mainWindow, {
           type: 'AUTH',
-          message: { isAuthorized: true }
+          body: this.playerController.isUserAuthenticated()
+        });
+      } else if (data.type === 'CURRENTLY_PLAYING') {
+        this.sendMessage(mainWindow, {
+          type: 'CURRENTLY_PLAYING',
+          body: this.playerController.getCurrentlyPlayingTrack()
         });
       }
     });
+
+    setInterval(async () => {
+      const wasUpdated = await this.playerController.updateIfNewTrack();
+
+      if (wasUpdated) {
+        this.sendMessage(mainWindow, {
+          type: 'CURRENTLY_PLAYING',
+          body: this.playerController.getCurrentlyPlayingTrack()
+        });
+      }
+    }, 3000);
 
     return mainWindow;
   };
@@ -59,10 +88,14 @@ export class MainWindowGenerator {
     const { code } = parsedQueryString.query;
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
-      this.slackService.exchangeCodeForAccessToken(code as string);
+      this.playerController.exchangeUserCodeForAccessToken(code as string);
       isAuthorized = true;
     }
 
     return isAuthorized;
+  }
+
+  private sendMessage(mainWindow: BrowserWindow, message: Message) {
+    mainWindow.webContents.send('message-from-main', message);
   }
 }
