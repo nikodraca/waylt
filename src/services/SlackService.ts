@@ -1,10 +1,19 @@
 import axios from 'axios';
 import * as qs from 'query-string';
+import ElectronStore = require('electron-store');
 
 export class SlackService {
-  private accessToken?: string;
+  private slackAccessToken?: string;
+  private store: ElectronStore;
 
-  constructor() {}
+  constructor(store: ElectronStore) {
+    this.store = store;
+
+    const slackAccessToken = this.store.get('slackAccessToken');
+    if (slackAccessToken) {
+      this.slackAccessToken = slackAccessToken as string;
+    }
+  }
 
   async exchangeCodeForAccessToken(code: string) {
     const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_REDIRECT_URI } = process.env;
@@ -18,11 +27,12 @@ export class SlackService {
 
     const res = await axios.get(`https://slack.com/api/oauth.access?${query}`);
 
-    this.accessToken = res.data.access_token;
+    this.slackAccessToken = res.data.access_token;
+    this.store.set('slackAccessToken', this.slackAccessToken);
   }
 
   isAuthenticated(): boolean {
-    return !!this.accessToken;
+    return !!this.slackAccessToken;
   }
 
   async postMessage(message: string) {
@@ -37,7 +47,7 @@ export class SlackService {
           }
         },
         {
-          headers: { Authorization: `Bearer ${this.accessToken}` }
+          headers: { Authorization: `Bearer ${this.slackAccessToken}` }
         }
       );
     }
