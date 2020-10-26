@@ -1,23 +1,16 @@
 import axios from 'axios';
 import * as qs from 'query-string';
-import ElectronStore = require('electron-store');
 import { SlackUserData } from '../types';
 
 export class SlackService {
   private slackAccessToken?: string;
-  private store: ElectronStore;
   private userData: SlackUserData;
 
-  constructor(store: ElectronStore) {
-    this.store = store;
+  constructor() {}
 
-    const slackAccessToken = this.store.get('slackAccessToken');
-    if (slackAccessToken) {
-      this.slackAccessToken = slackAccessToken as string;
-    }
-  }
-
-  async exchangeCodeForAccessToken(code: string): Promise<SlackUserData> {
+  async exchangeCodeForAccessToken(
+    code: string
+  ): Promise<{ slackAccessToken: string; userData: SlackUserData }> {
     const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_REDIRECT_URI } = process.env;
 
     const query = qs.stringify({
@@ -30,8 +23,7 @@ export class SlackService {
     const res = await axios.get(`https://slack.com/api/oauth.access?${query}`);
 
     if (res.data.ok === true) {
-      this.slackAccessToken = res.data.access_token;
-      this.store.set('slackAccessToken', this.slackAccessToken);
+      this.setAccessToken(res.data.access_token);
 
       const { user_id, team_id, team_name } = res.data;
       const slackUserData = {
@@ -41,57 +33,54 @@ export class SlackService {
       };
 
       this.userData = slackUserData;
-      this.store.set('slackUserData', this.userData);
 
-      return this.userData;
+      return {
+        slackAccessToken: this.slackAccessToken,
+        userData: this.userData
+      };
     }
 
     throw new Error('Unable to authorize user');
   }
 
+  setAccessToken(accessToken: string) {
+    this.slackAccessToken = accessToken;
+  }
+
   async fetchUserData(userId: string): Promise<SlackUserData> {
-    if (this.isAuthenticated()) {
-      const query = qs.stringify({
-        user: userId
-      });
+    const query = qs.stringify({
+      user: userId
+    });
 
-      const res = await axios.get(`https://slack.com/api/users.info?${query}`, {
-        headers: { Authorization: `Bearer ${this.slackAccessToken}` }
-      });
+    const res = await axios.get(`https://slack.com/api/users.info?${query}`, {
+      headers: { Authorization: `Bearer ${this.slackAccessToken}` }
+    });
 
-      if (res.data.ok === true) {
-        const { real_name, image_192 } = res.data.user.profile;
+    if (res.data.ok === true) {
+      const { real_name, image_192 } = res.data.user.profile;
 
-        this.userData.userName = real_name;
-        this.userData.userAvatar = image_192;
-
-        this.store.set('slackUserData.userName', this.userData.userName);
-        this.store.set('slackUserData.userAvatar', this.userData.userAvatar);
-      }
+      this.userData.userName = real_name;
+      this.userData.userAvatar = image_192;
 
       return this.userData;
     }
-  }
 
-  isAuthenticated(): boolean {
-    return !!this.slackAccessToken;
+    throw new Error('Unable to fetch user data');
   }
 
   async postMessage(message: string) {
-    if (this.isAuthenticated()) {
-      await axios.post(
-        `https://slack.com/api/users.profile.set`,
-        {
-          profile: {
-            status_text: message,
-            status_emoji: ':musical_note:',
-            status_expiration: 0
-          }
-        },
-        {
-          headers: { Authorization: `Bearer ${this.slackAccessToken}` }
+    await axios.post(
+      `https://slack.com/api/users.profile.set`,
+      {
+        profile: {
+          status_text: message,
+          status_emoji: ':musical_note:',
+          status_expiration: 0
         }
-      );
-    }
+      },
+      {
+        headers: { Authorization: `Bearer ${this.slackAccessToken}` }
+      }
+    );
   }
 }

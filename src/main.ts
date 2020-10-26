@@ -19,9 +19,10 @@ app.on('ready', async () => {
   const store = new ElectronStore();
 
   const spotifyService = new SpotifyService();
-  const slackService = new SlackService(store);
+  const slackService = new SlackService();
 
   const playerController = new PlayerController(spotifyService, slackService, store);
+  playerController.hydrateAccessToken();
 
   const mainWindowGenerator = new MainWindowGenerator(playerController);
   mainWindow = mainWindowGenerator.createMainWindow();

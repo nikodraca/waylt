@@ -1,4 +1,4 @@
-type MessageType =
+export type MessageType =
   | 'AUTH'
   | 'CURRENTLY_PLAYING'
   | 'PLAYER_PREFERENCES'

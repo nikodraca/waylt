@@ -3,7 +3,7 @@ import * as path from 'path';
 import { is } from 'electron-util';
 import * as qs from 'query-string';
 import { PlayerController } from '../controllers/PlayerController';
-import { Message } from '../types';
+import { Message, MessageType } from '../types';
 
 export class MainWindowGenerator {
   playerController: PlayerController;
@@ -48,46 +48,19 @@ export class MainWindowGenerator {
         if (isAuthorized) {
           this.sendMessage(mainWindow, {
             type: 'AUTH',
-            body: isAuthorized
+            body: this.playerController.isUserAuthenticated()
+          });
+
+          this.sendMessage(mainWindow, {
+            type: 'USER_DATA',
+            body: this.playerController.getUserData()
           });
         }
       }
     );
 
     ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, { type }: Message) => {
-      if (type === 'AUTH') {
-        this.sendMessage(mainWindow, {
-          type: 'AUTH',
-          body: this.playerController.isUserAuthenticated()
-        });
-      } else if (type === 'CURRENTLY_PLAYING') {
-        this.sendMessage(mainWindow, {
-          type: 'CURRENTLY_PLAYING',
-          body: this.playerController.getCurrentlyPlayingTrack()
-        });
-      } else if (type === 'PLAYER_PREFERENCES') {
-        this.sendMessage(mainWindow, {
-          type: 'PLAYER_PREFERENCES',
-          body: this.playerController.getPlayerPreferences()
-        });
-      } else if (type === 'TOGGLE_INCOGNITO') {
-        const playerPreferences = this.playerController.getPlayerPreferences();
-        this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
-
-        this.sendMessage(mainWindow, {
-          type: 'PLAYER_PREFERENCES',
-          body: this.playerController.getPlayerPreferences()
-        });
-      } else if (type === 'USER_DATA') {
-        const userData = this.playerController.getUserData();
-
-        if (userData) {
-          this.sendMessage(mainWindow, {
-            type: 'USER_DATA',
-            body: userData
-          });
-        }
-      }
+      this.generateIpcMessageHandlers(mainWindow, type);
     });
 
     setInterval(async () => {
@@ -110,7 +83,7 @@ export class MainWindowGenerator {
     const { code } = parsedQueryString.query;
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
-      const userId = await this.playerController.exchangeUserCodeForAccessToken(code as string);
+      const { userId } = await this.playerController.exchangeUserCodeForAccessToken(code as string);
       await this.playerController.fetchUserData(userId);
       isAuthorized = true;
     }
@@ -120,5 +93,41 @@ export class MainWindowGenerator {
 
   private sendMessage(mainWindow: BrowserWindow, message: Message) {
     mainWindow.webContents.send('message-from-main', message);
+  }
+
+  private generateIpcMessageHandlers(mainWindow: BrowserWindow, type: MessageType) {
+    if (type === 'AUTH') {
+      this.sendMessage(mainWindow, {
+        type: 'AUTH',
+        body: this.playerController.isUserAuthenticated()
+      });
+    } else if (type === 'CURRENTLY_PLAYING') {
+      this.sendMessage(mainWindow, {
+        type: 'CURRENTLY_PLAYING',
+        body: this.playerController.getCurrentlyPlayingTrack()
+      });
+    } else if (type === 'PLAYER_PREFERENCES') {
+      this.sendMessage(mainWindow, {
+        type: 'PLAYER_PREFERENCES',
+        body: this.playerController.getPlayerPreferences()
+      });
+    } else if (type === 'TOGGLE_INCOGNITO') {
+      const playerPreferences = this.playerController.getPlayerPreferences();
+      this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
+
+      this.sendMessage(mainWindow, {
+        type: 'PLAYER_PREFERENCES',
+        body: this.playerController.getPlayerPreferences()
+      });
+    } else if (type === 'USER_DATA') {
+      const userData = this.playerController.getUserData();
+
+      if (userData) {
+        this.sendMessage(mainWindow, {
+          type: 'USER_DATA',
+          body: userData
+        });
+      }
+    }
   }
 }

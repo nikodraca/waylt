@@ -18,8 +18,6 @@ export const PlayerContainer = ({
     ipcRenderer.send('message-to-main', { type: 'TOGGLE_INCOGNITO' });
   };
 
-  console.log(userData);
-
   return (
     <div>
       <img src={userData.userAvatar} alt={userData.userId} />
