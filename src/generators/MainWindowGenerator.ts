@@ -43,8 +43,8 @@ export class MainWindowGenerator {
 
     mainWindow.webContents.on(
       'will-redirect',
-      (event: Electron.IpcMainEvent, oldUrl: any, newUrl: any) => {
-        const isAuthorized = this.handleAuthRedirect(oldUrl);
+      async (event: Electron.IpcMainEvent, oldUrl: any, newUrl: any) => {
+        const isAuthorized = await this.handleAuthRedirect(oldUrl);
         if (isAuthorized) {
           this.sendMessage(mainWindow, {
             type: 'AUTH',
@@ -78,6 +78,15 @@ export class MainWindowGenerator {
           type: 'PLAYER_PREFERENCES',
           body: this.playerController.getPlayerPreferences()
         });
+      } else if (type === 'USER_DATA') {
+        const userData = this.playerController.getUserData();
+
+        if (userData) {
+          this.sendMessage(mainWindow, {
+            type: 'USER_DATA',
+            body: userData
+          });
+        }
       }
     });
 
@@ -95,13 +104,14 @@ export class MainWindowGenerator {
     return mainWindow;
   };
 
-  private handleAuthRedirect(url: string): boolean {
+  private async handleAuthRedirect(url: string): Promise<boolean> {
     let isAuthorized = false;
     const parsedQueryString = qs.parseUrl(url);
     const { code } = parsedQueryString.query;
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
-      this.playerController.exchangeUserCodeForAccessToken(code as string);
+      const userId = await this.playerController.exchangeUserCodeForAccessToken(code as string);
+      await this.playerController.fetchUserData(userId);
       isAuthorized = true;
     }
 

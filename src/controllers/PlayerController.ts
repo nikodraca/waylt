@@ -1,7 +1,7 @@
 import { SpotifyService } from '../services/SpotifyService';
 import { SlackService } from '../services/SlackService';
 import ElectronStore = require('electron-store');
-import { PlayerPreferences } from '../types';
+import { PlayerPreferences, SlackUserData } from '../types';
 
 export class PlayerController {
   private spotifyService: SpotifyService;
@@ -39,8 +39,13 @@ export class PlayerController {
     return this.slackService.isAuthenticated();
   }
 
-  async exchangeUserCodeForAccessToken(code: string): Promise<void> {
-    await this.slackService.exchangeCodeForAccessToken(code);
+  async exchangeUserCodeForAccessToken(code: string): Promise<string> {
+    const { userId } = await this.slackService.exchangeCodeForAccessToken(code);
+    return userId;
+  }
+
+  async fetchUserData(userId: string) {
+    return this.slackService.fetchUserData(userId);
   }
 
   getCurrentlyPlayingTrack(): string {
@@ -53,6 +58,12 @@ export class PlayerController {
     }
 
     return !!this.store.get('isIncognito');
+  }
+
+  getUserData(): SlackUserData {
+    if (this.store.has('slackUserData')) {
+      return this.store.get('slackUserData') as SlackUserData;
+    }
   }
 
   getPlayerPreferences(): PlayerPreferences {
