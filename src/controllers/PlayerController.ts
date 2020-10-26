@@ -14,6 +14,12 @@ export class PlayerController {
     this.store = store;
   }
 
+  hydrateAccessToken() {
+    if (this.store.has('slackAccessToken')) {
+      this.slackService.setAccessToken(this.store.get('slackAccessToken') as string);
+    }
+  }
+
   async updateIfNewTrack(): Promise<boolean> {
     if (this.isIncognito()) {
       return false;
@@ -22,10 +28,7 @@ export class PlayerController {
     let wasUpdated = false;
     const currentTrack = await this.spotifyService.getTrackAndArtist();
 
-    if (
-      this.spotifyService.isNewTrackPlaying(currentTrack) &&
-      this.slackService.isAuthenticated()
-    ) {
+    if (this.spotifyService.isNewTrackPlaying(currentTrack) && this.isUserAuthenticated()) {
       await this.slackService.postMessage(currentTrack);
       this.spotifyService.setLastTrack(currentTrack);
 
@@ -36,16 +39,23 @@ export class PlayerController {
   }
 
   isUserAuthenticated(): boolean {
-    return this.slackService.isAuthenticated();
+    return !!this.store.get('slackAccessToken') as boolean;
   }
 
-  async exchangeUserCodeForAccessToken(code: string): Promise<string> {
-    const { userId } = await this.slackService.exchangeCodeForAccessToken(code);
-    return userId;
+  async exchangeUserCodeForAccessToken(code: string): Promise<SlackUserData> {
+    const { slackAccessToken, userData } = await this.slackService.exchangeCodeForAccessToken(code);
+
+    this.store.set('slackAccessToken', slackAccessToken);
+    this.store.set('slackUserData', userData);
+
+    return userData;
   }
 
   async fetchUserData(userId: string) {
-    return this.slackService.fetchUserData(userId);
+    const userData = await this.slackService.fetchUserData(userId);
+
+    this.store.set('slackUserData', userData);
+    return userData;
   }
 
   getCurrentlyPlayingTrack(): string {
