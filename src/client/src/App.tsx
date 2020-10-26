@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
-import { Message, PlayerPreferences } from '../../types';
+import { Message, PlayerPreferences, SlackUserData } from '../../types';
 import { AuthContainer, PlayerContainer } from './components';
 
 const electron = window.require('electron');
@@ -13,15 +13,24 @@ function App() {
   const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>({
     isIncognito: false
   });
+  const [userData, setUserData] = useState<SlackUserData>({
+    userId: '',
+    teamId: '',
+    teamName: '',
+    userName: '',
+    userAvatar: ''
+  });
 
   const { REACT_APP_SLACK_CLIENT_ID, REACT_APP_SLACK_REDIRECT_URI } = process.env;
-  const slackAuthUrl = `https://slack.com/oauth/authorize?client_id=${REACT_APP_SLACK_CLIENT_ID}&scope=users.profile:write&redirect_uri=${REACT_APP_SLACK_REDIRECT_URI}`;
+  const scopes = ['users.profile:write', 'users:read'].join(' ');
+  const slackAuthUrl = `https://slack.com/oauth/authorize?client_id=${REACT_APP_SLACK_CLIENT_ID}&scope=${scopes}&redirect_uri=${REACT_APP_SLACK_REDIRECT_URI}`;
 
   useEffect(() => {
     if (isElectron()) {
       ipcRenderer.send('message-to-main', { type: 'AUTH' });
       ipcRenderer.send('message-to-main', { type: 'CURRENTLY_PLAYING' });
       ipcRenderer.send('message-to-main', { type: 'PLAYER_PREFERENCES' });
+      ipcRenderer.send('message-to-main', { type: 'USER_DATA' });
 
       ipcRenderer.on('message-from-main', (e: any, { type, body }: Message) => {
         if (type === 'AUTH') {
@@ -30,6 +39,8 @@ function App() {
           setCurrentlyPlayingTrack(body);
         } else if (type === 'PLAYER_PREFERENCES') {
           setPlayerPreferences(body);
+        } else if (type === 'USER_DATA') {
+          setUserData(body);
         }
       });
     }
@@ -42,6 +53,7 @@ function App() {
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}
           playerPreferences={playerPreferences}
+          userData={userData}
           ipcRenderer={ipcRenderer}
         />
       ) : (
