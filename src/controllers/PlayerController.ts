@@ -1,7 +1,7 @@
 import { SpotifyService } from '../services/SpotifyService';
 import { SlackService } from '../services/SlackService';
 import ElectronStore = require('electron-store');
-import { PlayerPreferences, SlackUserData } from '../types';
+import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../types';
 
 export class PlayerController {
   private spotifyService: SpotifyService;
@@ -29,8 +29,10 @@ export class PlayerController {
     const currentTrack = await this.spotifyService.getTrackAndArtist();
 
     if (this.spotifyService.isNewTrackPlaying(currentTrack) && this.isUserAuthenticated()) {
-      await this.slackService.postMessage(currentTrack);
       this.spotifyService.setLastTrack(currentTrack);
+
+      const formattedTrackAndArtist = this.spotifyService.getFormattedTrack();
+      await this.slackService.postMessage(formattedTrackAndArtist);
 
       wasUpdated = true;
     }
@@ -58,7 +60,7 @@ export class PlayerController {
     return userData;
   }
 
-  getCurrentlyPlayingTrack(): string {
+  getCurrentlyPlayingTrack(): SpotifyTrack {
     return this.spotifyService.getLastTrack();
   }
 

@@ -1,7 +1,8 @@
 import * as runApplescript from 'run-applescript';
+import { SpotifyTrack } from '../types';
 
 export class SpotifyService {
-  private lastTrack: string;
+  private lastTrack: SpotifyTrack;
   constructor() {}
 
   private async getArtistName() {
@@ -12,18 +13,32 @@ export class SpotifyService {
     return await runApplescript('tell application "Spotify" to name of current track as string');
   }
 
-  async getTrackAndArtist() {
-    const title = await this.getTrackName();
-    const artist = await this.getArtistName();
+  async getTrackAndArtist(): Promise<SpotifyTrack> {
+    const [title, artist] = await Promise.all([
+      await this.getTrackName(),
+      await this.getArtistName()
+    ]);
 
+    return {
+      title,
+      artist
+    };
+  }
+
+  getFormattedTrack(): string {
+    const { title, artist } = this.lastTrack;
     return `${title} - ${artist}`;
   }
 
-  isNewTrackPlaying(currentTrack: string): boolean {
-    return currentTrack !== this.lastTrack;
+  isNewTrackPlaying({ title, artist }: SpotifyTrack): boolean {
+    if (!this.lastTrack) {
+      return true;
+    }
+
+    return title !== this.lastTrack.title || artist !== this.lastTrack.artist;
   }
 
-  setLastTrack(track: string) {
+  setLastTrack(track: SpotifyTrack) {
     this.lastTrack = track;
   }
 

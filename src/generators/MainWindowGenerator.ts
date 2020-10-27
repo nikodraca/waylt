@@ -18,9 +18,9 @@ export class MainWindowGenerator {
    */
   createMainWindow = (): BrowserWindow => {
     const mainWindow = new BrowserWindow({
-      backgroundColor: '#fff',
+      backgroundColor: 'transparent',
       width: 500,
-      height: 500,
+      height: 300,
       webPreferences: {
         devTools: is.development,
         nodeIntegration: true,
@@ -34,13 +34,12 @@ export class MainWindowGenerator {
       show: is.development
     });
 
-    // if (is.development) {
-    //   mainWindow.webContents.openDevTools({ mode: 'detach' });
-    //   mainWindow.loadURL('http://localhost:3000');
-    // } else {
-    console.log(`file://${path.join(__dirname, '../client/index.html')}`);
-    mainWindow.loadURL(`file://${path.join(__dirname, '../client/index.html')}`);
-    // }
+    if (is.development) {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+      mainWindow.loadURL('http://localhost:3000');
+    } else {
+      mainWindow.loadURL(`file://${path.join(__dirname, '../dist/client/index.html')}`);
+    }
 
     mainWindow.webContents.on(
       'will-redirect',
