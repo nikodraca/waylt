@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
-import { Message, PlayerPreferences, SlackUserData } from '../../types';
+import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../../types';
 import { AuthContainer, PlayerContainer } from './components';
 
 const electron = window.require('electron');
@@ -9,7 +9,10 @@ const ipcRenderer = electron.ipcRenderer;
 
 function App() {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  const [currentlyPlayingTrack, setCurrentlyPlayingTrack] = useState<string>('');
+  const [currentlyPlayingTrack, setCurrentlyPlayingTrack] = useState<SpotifyTrack>({
+    title: '',
+    artist: ''
+  });
   const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>({
     isIncognito: false
   });
@@ -47,8 +50,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">Slackify</header>
+    <div className="App" style={{ backgroundColor: '#070518' }}>
       {isUserAuthenticated ? (
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}

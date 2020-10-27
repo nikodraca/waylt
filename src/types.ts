@@ -21,3 +21,8 @@ export interface SlackUserData {
 export interface PlayerPreferences {
   isIncognito: boolean;
 }
+
+export interface SpotifyTrack {
+  title: string;
+  artist: string;
+}

@@ -18,9 +18,9 @@ export class MainWindowGenerator {
    */
   createMainWindow = (): BrowserWindow => {
     const mainWindow = new BrowserWindow({
-      backgroundColor: '#fff',
+      backgroundColor: 'transparent',
       width: 500,
-      height: 500,
+      height: 300,
       webPreferences: {
         devTools: is.development,
         nodeIntegration: true,
