@@ -1,0 +1,2 @@
+export const REACT_APP_SLACK_CLIENT_ID = '1182059129521.1447672242117';
+export const REACT_APP_SLACK_REDIRECT_URI = 'http://localhost:3000';
