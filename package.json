@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
+  "homepage": ".",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -52,7 +53,8 @@
   "build": {
     "extends": null,
     "files": [
-      "build/**/*"
+      "build/**/*",
+      "node_modules/**/*"
     ],
     "directories": {
       "buildResources": "assets"
