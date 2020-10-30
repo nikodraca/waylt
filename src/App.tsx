@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
-import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../../types';
+import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../electron/types';
 import { AuthContainer, PlayerContainer } from './components';
+import { REACT_APP_SLACK_CLIENT_ID, REACT_APP_SLACK_REDIRECT_URI } from './constants';
 
 const electron = window.require('electron');
 const fs = electron.remote.require('fs');
@@ -24,7 +25,6 @@ function App() {
     userAvatar: ''
   });
 
-  const { REACT_APP_SLACK_CLIENT_ID, REACT_APP_SLACK_REDIRECT_URI } = process.env;
   const scopes = ['users.profile:write', 'users:read'].join(' ');
   const slackAuthUrl = `https://slack.com/oauth/authorize?client_id=${REACT_APP_SLACK_CLIENT_ID}&scope=${scopes}&redirect_uri=${REACT_APP_SLACK_REDIRECT_URI}`;
 

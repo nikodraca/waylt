@@ -3,10 +3,13 @@ import * as qs from 'query-string';
 import { SlackUserData } from '../types';
 
 export class SlackService {
-  private slackAccessToken?: string;
-  private userData: SlackUserData;
+  private slackAccessToken: string | undefined;
+  private userData: SlackUserData | undefined;
 
-  constructor() {}
+  constructor() {
+    this.slackAccessToken = undefined;
+    this.userData = undefined;
+  }
 
   async exchangeCodeForAccessToken(
     code: string
@@ -34,10 +37,12 @@ export class SlackService {
 
       this.userData = slackUserData;
 
-      return {
-        slackAccessToken: this.slackAccessToken,
-        userData: this.userData
-      };
+      if (this.slackAccessToken && this.userData) {
+        return {
+          slackAccessToken: this.slackAccessToken,
+          userData: this.userData
+        };
+      }
     }
 
     throw new Error('Unable to authorize user');
@@ -59,10 +64,12 @@ export class SlackService {
     if (res.data.ok === true) {
       const { real_name, image_192 } = res.data.user.profile;
 
-      this.userData.userName = real_name;
-      this.userData.userAvatar = image_192;
+      if (this.userData) {
+        this.userData.userName = real_name;
+        this.userData.userAvatar = image_192;
 
-      return this.userData;
+        return this.userData;
+      }
     }
 
     throw new Error('Unable to fetch user data');

@@ -35,42 +35,52 @@ export class MainWindowGenerator {
     });
 
     if (is.development) {
+      mainWindow.loadURL('http://localhost:3000/index.html');
       mainWindow.webContents.openDevTools({ mode: 'detach' });
-      mainWindow.loadURL('http://localhost:3000');
     } else {
-      mainWindow.loadURL(`file://${path.join(__dirname, '../dist/client/index.html')}`);
+      // 'build/index.html'
+      mainWindow.loadURL(`file://${__dirname}/../../index.html`);
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
 
-    mainWindow.webContents.on(
-      'will-redirect',
-      async (event: Electron.IpcMainEvent, oldUrl: any, newUrl: any) => {
-        const isAuthorized = await this.handleAuthRedirect(oldUrl);
-        if (isAuthorized) {
-          this.sendMessage(mainWindow, {
-            type: 'AUTH',
-            body: this.playerController.isUserAuthenticated()
-          });
+    // Hot Reloading
+    if (is.development) {
+      require('electron-reload')(__dirname, {
+        electron: path.join(__dirname, '..', '..', 'node_modules', '.bin', 'electron'),
+        forceHardReset: true,
+        hardResetMethod: 'exit'
+      });
+    }
 
-          this.sendMessage(mainWindow, {
-            type: 'USER_DATA',
-            body: this.playerController.getUserData()
-          });
-        }
+    mainWindow.webContents.on('will-redirect', async (event: Electron.Event, oldUrl: any) => {
+      const isAuthorized = await this.handleAuthRedirect(oldUrl);
+      if (isAuthorized) {
+        this.sendMessage(mainWindow, {
+          type: 'AUTH',
+          body: this.playerController.isUserAuthenticated()
+        });
+
+        this.sendMessage(mainWindow, {
+          type: 'USER_DATA',
+          body: this.playerController.getUserData()
+        });
       }
-    );
+    });
 
     ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, { type }: Message) => {
       this.generateIpcMessageHandlers(mainWindow, type);
     });
 
     setInterval(async () => {
-      const wasUpdated = await this.playerController.updateIfNewTrack();
+      if (this.playerController.isUserAuthenticated()) {
+        const wasUpdated = await this.playerController.updateIfNewTrack();
 
-      if (wasUpdated) {
-        this.sendMessage(mainWindow, {
-          type: 'CURRENTLY_PLAYING',
-          body: this.playerController.getCurrentlyPlayingTrack()
-        });
+        if (wasUpdated) {
+          this.sendMessage(mainWindow, {
+            type: 'CURRENTLY_PLAYING',
+            body: this.playerController.getCurrentlyPlayingTrack()
+          });
+        }
       }
     }, 3000);
 

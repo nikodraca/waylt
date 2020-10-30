@@ -1,13 +1,14 @@
-require('dotenv').config();
-
 import { app, BrowserWindow, Tray } from 'electron';
-import ElectronStore = require('electron-store');
+import * as ElectronStore from 'electron-store';
+import { is } from 'electron-util';
 
 import { SpotifyService } from './services/SpotifyService';
 import { SlackService } from './services/SlackService';
 import { MainWindowGenerator } from './generators/MainWindowGenerator';
 import { TrayGenerator } from './generators/TrayGenerator';
 import { PlayerController } from './controllers/PlayerController';
+
+require('dotenv').config();
 
 let mainWindow: BrowserWindow;
 let tray: Tray;
@@ -17,6 +18,10 @@ let tray: Tray;
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   const store = new ElectronStore();
+
+  if (is.development) {
+    store.clear();
+  }
 
   const spotifyService = new SpotifyService();
   const slackService = new SlackService();

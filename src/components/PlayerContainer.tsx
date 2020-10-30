@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../../../types';
+import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../../electron/types';
 
 interface PlayerContainerProps {
   currentlyPlayingTrack: SpotifyTrack;
