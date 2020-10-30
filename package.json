@@ -10,6 +10,7 @@
     "test": "react-scripts test",
     "postinstall": "electron-builder install-app-deps",
     "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/",
+    "electron:dev-dist-react": "yarn electron:copy-static && concurrently  \"tsc -p electron -w\" \"tsc -p electron && electron .\"",
     "electron:dev": "yarn electron:copy-static && concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:windev": "yarn electron:copy-static && concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:build": "yarn build && tsc -p electron && yarn electron:copy-static",

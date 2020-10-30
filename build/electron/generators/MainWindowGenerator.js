@@ -43,7 +43,8 @@ class MainWindowGenerator {
             }
             else {
                 // 'build/index.html'
-                mainWindow.loadURL(`file://${__dirname}/../index.html`);
+                mainWindow.loadURL(`file://${__dirname}/../../index.html`);
+                mainWindow.webContents.openDevTools({ mode: 'detach' });
             }
             // Hot Reloading
             if (electron_util_1.is.development) {

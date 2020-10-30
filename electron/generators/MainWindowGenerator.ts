@@ -39,7 +39,7 @@ export class MainWindowGenerator {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
     } else {
       // 'build/index.html'
-      mainWindow.loadURL(`file://${__dirname}/../index.html`);
+      mainWindow.loadURL(`file://${__dirname}/../../index.html`);
       mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
 
