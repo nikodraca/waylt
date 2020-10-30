@@ -1,4 +1,5 @@
-# slackify-mac
+# songstat.us
+http://songstat.us/
 
 ## Getting Started
 
