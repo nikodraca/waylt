@@ -43,8 +43,6 @@ export class MainWindowGenerator {
     const authServer = createServer(async (req, res) => {
       const isAuthorized = await this.handleAuthRedirect(req.url as string);
 
-      console.log({ isAuthorized });
-
       if (isAuthorized) {
         this.sendMessage(mainWindow, {
           type: 'AUTH',
@@ -109,8 +107,6 @@ export class MainWindowGenerator {
     let isAuthorized = false;
     const parsedQueryString = qs.parseUrl(url);
     const { code } = parsedQueryString.query;
-
-    console.log({ code });
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
       const { userId } = await this.playerController.exchangeUserCodeForAccessToken(code as string);

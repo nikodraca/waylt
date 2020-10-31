@@ -2,60 +2,39 @@ import axios from 'axios';
 import * as qs from 'query-string';
 
 import { SlackUserData } from '../types';
+import { AuthService } from './AuthService';
 
 export class SlackService {
+  private authService: AuthService;
   private slackAccessToken: string | undefined;
   private userData: SlackUserData | undefined;
 
-  constructor() {
+  constructor(authService: AuthService) {
     this.slackAccessToken = undefined;
     this.userData = undefined;
+    this.authService = authService;
   }
 
   async exchangeCodeForAccessToken(
     code: string
   ): Promise<{ slackAccessToken: string; userData: SlackUserData }> {
-    const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_REDIRECT_URI } = process.env;
+    const { userId, teamId, teamName, accessToken } = await this.authService.getAuthData(code);
 
-    /**
-     * Make API request directly to Slack with dev credentials
-     */
-    // if (is.development) {}
-
-    const query = qs.stringify({
-      code,
-      client_id: SLACK_CLIENT_ID,
-      client_secret: SLACK_CLIENT_SECRET,
-      redirect_uri: SLACK_REDIRECT_URI
-    });
-
-    const res = await axios.get(`https://slack.com/api/oauth.access?${query}`);
-
-    if (res.data.ok === true) {
-      this.setAccessToken(res.data.access_token);
-
-      const { user_id, team_id, team_name } = res.data;
-      const slackUserData = {
-        userId: user_id,
-        teamId: team_id,
-        teamName: team_name
-      };
-
-      this.userData = slackUserData;
-
-      if (this.slackAccessToken && this.userData) {
-        return {
-          slackAccessToken: this.slackAccessToken,
-          userData: this.userData
-        };
-      }
+    if (!accessToken) {
+      throw new Error('Unable to authorize user');
     }
 
-    // else {
-    //   console.log(res.data);
-    // }
+    this.setAccessToken(accessToken);
+    this.userData = { userId, teamId, teamName };
 
-    throw new Error('Unable to authorize user');
+    return {
+      slackAccessToken: accessToken,
+      userData: {
+        userId,
+        teamId,
+        teamName
+      }
+    };
   }
 
   setAccessToken(accessToken: string) {

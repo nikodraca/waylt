@@ -1,0 +1,19 @@
+import axios from 'axios';
+import { is } from 'electron-util';
+import { SlackUserData } from '../types';
+
+/**
+ * In order to not store client secret on the Electron app,
+ * we call an external auth API which will exchange the code for an access token
+ */
+export class AuthService {
+  async getAuthData(code: string): Promise<SlackUserData & { accessToken: string }> {
+    const baseUrl = is.development ? process.env.AUTH_ENDPOINT : 'https://dracalabs.ngrok.io';
+    const authEndpoint = `${baseUrl}/auth`;
+
+    const response = await axios.post(authEndpoint as string, {
+      code
+    });
+    return response.data;
+  }
+}
