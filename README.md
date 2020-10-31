@@ -15,3 +15,8 @@
 1. `cd src/client`
 2. Install packages: `yarn`
 3. Run `yarn start`
+
+### Distribution
+
+1. Run `yarn electron:build` to compile
+2. Run `yarn electron:dist` to create `.dmg` file.
