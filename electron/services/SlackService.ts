@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as qs from 'query-string';
+
 import { SlackUserData } from '../types';
 
 export class SlackService {
@@ -15,6 +16,11 @@ export class SlackService {
     code: string
   ): Promise<{ slackAccessToken: string; userData: SlackUserData }> {
     const { SLACK_CLIENT_ID, SLACK_CLIENT_SECRET, SLACK_REDIRECT_URI } = process.env;
+
+    /**
+     * Make API request directly to Slack with dev credentials
+     */
+    // if (is.development) {}
 
     const query = qs.stringify({
       code,
@@ -44,6 +50,10 @@ export class SlackService {
         };
       }
     }
+
+    // else {
+    //   console.log(res.data);
+    // }
 
     throw new Error('Unable to authorize user');
   }
