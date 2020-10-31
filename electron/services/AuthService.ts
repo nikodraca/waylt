@@ -8,7 +8,9 @@ import { SlackUserData } from '../types';
  */
 export class AuthService {
   async getAuthData(code: string): Promise<SlackUserData & { accessToken: string }> {
-    const baseUrl = is.development ? process.env.AUTH_ENDPOINT : 'https://dracalabs.ngrok.io';
+    const baseUrl = is.development
+      ? process.env.AUTH_ENDPOINT
+      : 'https://songstatus-auth-api.herokuapp.com';
     const authEndpoint = `${baseUrl}/auth`;
 
     const response = await axios.post(authEndpoint as string, {
