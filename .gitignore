@@ -2,5 +2,5 @@ node_modules
 dist
 .env
 yarn-error.log
-builld/*
+build
 .DS_Store

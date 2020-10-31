@@ -2,11 +2,9 @@ import { app, BrowserWindow, Tray } from 'electron';
 import * as ElectronStore from 'electron-store';
 import { is } from 'electron-util';
 
-import { SpotifyService } from './services/SpotifyService';
-import { SlackService } from './services/SlackService';
-import { MainWindowGenerator } from './generators/MainWindowGenerator';
-import { TrayGenerator } from './generators/TrayGenerator';
-import { PlayerController } from './controllers/PlayerController';
+import { SpotifyService, SlackService, AuthService } from './services/';
+import { MainWindowGenerator, TrayGenerator } from './generators';
+import { PlayerController } from './controllers';
 
 require('dotenv').config();
 
@@ -24,7 +22,8 @@ app.on('ready', async () => {
   }
 
   const spotifyService = new SpotifyService();
-  const slackService = new SlackService();
+  const authService = new AuthService();
+  const slackService = new SlackService(authService);
 
   const playerController = new PlayerController(spotifyService, slackService, store);
   playerController.hydrateAccessToken();

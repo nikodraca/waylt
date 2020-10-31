@@ -2,6 +2,8 @@ import { BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { is } from 'electron-util';
 import * as qs from 'query-string';
+import { createServer } from 'http';
+
 import { PlayerController } from '../controllers/PlayerController';
 import { Message, MessageType } from '../types';
 
@@ -34,26 +36,13 @@ export class MainWindowGenerator {
       show: is.development
     });
 
-    if (is.development) {
-      mainWindow.loadURL('http://localhost:3000/index.html');
-      mainWindow.webContents.openDevTools({ mode: 'detach' });
-    } else {
-      // 'build/index.html'
-      mainWindow.loadURL(`file://${__dirname}/../../index.html`);
-      mainWindow.webContents.openDevTools({ mode: 'detach' });
-    }
+    /**
+     * Create auth web server to intercept OAuth code
+     * Once completed, exchange for access token and close server
+     */
+    const authServer = createServer(async (req, res) => {
+      const isAuthorized = await this.handleAuthRedirect(req.url as string);
 
-    // Hot Reloading
-    if (is.development) {
-      require('electron-reload')(__dirname, {
-        electron: path.join(__dirname, '..', '..', 'node_modules', '.bin', 'electron'),
-        forceHardReset: true,
-        hardResetMethod: 'exit'
-      });
-    }
-
-    mainWindow.webContents.on('will-redirect', async (event: Electron.Event, oldUrl: any) => {
-      const isAuthorized = await this.handleAuthRedirect(oldUrl);
       if (isAuthorized) {
         this.sendMessage(mainWindow, {
           type: 'AUTH',
@@ -64,8 +53,25 @@ export class MainWindowGenerator {
           type: 'USER_DATA',
           body: this.playerController.getUserData()
         });
+
+        authServer.close();
+
+        this.loadApp(mainWindow);
       }
     });
+
+    authServer.listen(7734);
+
+    this.loadApp(mainWindow);
+
+    // Hot Reloading
+    if (is.development) {
+      require('electron-reload')(__dirname, {
+        electron: path.join(__dirname, '..', '..', 'node_modules', '.bin', 'electron'),
+        forceHardReset: true,
+        hardResetMethod: 'exit'
+      });
+    }
 
     ipcMain.on('message-to-main', (event: Electron.IpcMainEvent, { type }: Message) => {
       this.generateIpcMessageHandlers(mainWindow, type);
@@ -86,6 +92,16 @@ export class MainWindowGenerator {
 
     return mainWindow;
   };
+
+  private loadApp(mainWindow: BrowserWindow) {
+    if (is.development) {
+      mainWindow.loadURL('http://localhost:3000/index.html');
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+    } else {
+      // 'build/index.html'
+      mainWindow.loadURL(`file://${__dirname}/../../index.html`);
+    }
+  }
 
   private async handleAuthRedirect(url: string): Promise<boolean> {
     let isAuthorized = false;
