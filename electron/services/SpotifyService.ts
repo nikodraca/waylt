@@ -8,6 +8,10 @@ export class SpotifyService {
     this.lastTrack = undefined;
   }
 
+  private async getTrackID() {
+    return await runApplescript('tell application "Spotify" to id of current track as string');
+  }
+
   private async getArtistName() {
     return await runApplescript('tell application "Spotify" to artist of current track as string');
   }
@@ -16,19 +20,23 @@ export class SpotifyService {
     return await runApplescript('tell application "Spotify" to name of current track as string');
   }
 
-  async getTrackAndArtist(): Promise<SpotifyTrack | undefined> {
+  async getCurrentlyPlaying(): Promise<SpotifyTrack | undefined> {
     try {
-      const [title, artist] = await Promise.all([
-        await this.getTrackName(),
-        await this.getArtistName()
+      const [title, artist, id] = await Promise.all([
+        this.getTrackName(),
+        this.getArtistName(),
+        this.getTrackID()
       ]);
+
+      console.log({ title, artist, id });
 
       return {
         title,
-        artist
+        artist,
+        id
       };
     } catch (err) {
-      console.log(err);
+      console.log({ err });
       return undefined;
     }
   }
@@ -42,12 +50,12 @@ export class SpotifyService {
     return `${title} - ${artist}`;
   }
 
-  isNewTrackPlaying({ title, artist }: SpotifyTrack): boolean {
+  isNewTrackPlaying(id: string): boolean {
     if (!this.lastTrack) {
       return true;
     }
 
-    return title !== this.lastTrack.title || artist !== this.lastTrack.artist;
+    return id !== this.lastTrack.id;
   }
 
   setLastTrack(track: SpotifyTrack) {

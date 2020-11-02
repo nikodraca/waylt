@@ -28,11 +28,11 @@ export class PlayerController {
     }
 
     let wasUpdated = false;
-    const currentTrack = await this.spotifyService.getTrackAndArtist();
+    const currentTrack = await this.spotifyService.getCurrentlyPlaying();
 
     if (
       currentTrack &&
-      this.spotifyService.isNewTrackPlaying(currentTrack) &&
+      this.spotifyService.isNewTrackPlaying(currentTrack.id) &&
       this.isUserAuthenticated()
     ) {
       this.spotifyService.setLastTrack(currentTrack);

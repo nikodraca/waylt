@@ -12,7 +12,8 @@ function App() {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [currentlyPlayingTrack, setCurrentlyPlayingTrack] = useState<SpotifyTrack>({
     title: '',
-    artist: ''
+    artist: '',
+    id: ''
   });
   const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>({
     isIncognito: false
