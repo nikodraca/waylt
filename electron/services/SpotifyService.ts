@@ -28,8 +28,6 @@ export class SpotifyService {
         this.getTrackID()
       ]);
 
-      console.log({ title, artist, id });
-
       return {
         title,
         artist,
