@@ -28,6 +28,14 @@ export class SpotifyService {
         this.getTrackID()
       ]);
 
+      console.log(
+        JSON.stringify({
+          title,
+          artist,
+          id
+        })
+      );
+
       return {
         title,
         artist,
@@ -48,12 +56,14 @@ export class SpotifyService {
     return `${title} - ${artist}`;
   }
 
-  isNewTrackPlaying(id: string): boolean {
+  isNewTrackPlaying({ id, title, artist }: SpotifyTrack): boolean {
     if (!this.lastTrack) {
       return true;
     }
 
-    return id !== this.lastTrack.id;
+    return (
+      id !== this.lastTrack.id || title !== this.lastTrack.title || artist !== this.lastTrack.artist
+    );
   }
 
   setLastTrack(track: SpotifyTrack) {
