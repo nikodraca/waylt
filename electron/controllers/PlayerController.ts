@@ -9,11 +9,13 @@ export class PlayerController {
   private spotifyService: SpotifyService;
   private slackService: SlackService;
   private store: ElectronStore;
+  private isUpdating: boolean; // acts as a lock to prevent the AppleScript from running too often
 
   constructor(spotifyService: SpotifyService, slackService: SlackService, store: ElectronStore) {
     this.spotifyService = spotifyService;
     this.slackService = slackService;
     this.store = store;
+    this.isUpdating = false;
   }
 
   hydrateAccessToken() {
@@ -27,12 +29,13 @@ export class PlayerController {
       return false;
     }
 
+    this.isUpdating = true;
     let wasUpdated = false;
     const currentTrack = await this.spotifyService.getCurrentlyPlaying();
 
     if (
       currentTrack &&
-      this.spotifyService.isNewTrackPlaying(currentTrack.id) &&
+      this.spotifyService.isNewTrackPlaying(currentTrack) &&
       this.isUserAuthenticated()
     ) {
       this.spotifyService.setLastTrack(currentTrack);
@@ -43,7 +46,12 @@ export class PlayerController {
       wasUpdated = true;
     }
 
+    this.isUpdating = false;
     return wasUpdated;
+  }
+
+  isPlayerUpdating(): boolean {
+    return this.isUpdating;
   }
 
   isUserAuthenticated(): boolean {

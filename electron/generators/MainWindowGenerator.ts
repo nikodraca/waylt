@@ -26,7 +26,7 @@ export class MainWindowGenerator {
       webPreferences: {
         devTools: is.development,
         nodeIntegration: true,
-        backgroundThrottling: true,
+        backgroundThrottling: false,
         worldSafeExecuteJavaScript: true,
         preload: path.join(__dirname, '../preload.js')
       },
@@ -78,7 +78,10 @@ export class MainWindowGenerator {
     });
 
     setInterval(async () => {
-      if (this.playerController.isUserAuthenticated()) {
+      if (
+        this.playerController.isUserAuthenticated() &&
+        !this.playerController.isPlayerUpdating()
+      ) {
         const wasUpdated = await this.playerController.updateIfNewTrack();
 
         if (wasUpdated) {
