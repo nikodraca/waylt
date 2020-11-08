@@ -9,35 +9,37 @@ const fs = electron.remote.require('fs');
 const ipcRenderer = electron.ipcRenderer;
 
 function App() {
-  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  const [currentlyPlayingTrack, setCurrentlyPlayingTrack] = useState<SpotifyTrack>({
+  const defaultCurrentlyPlayingTrack: SpotifyTrack = {
     title: '',
     artist: '',
     id: ''
-  });
-  const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>({
-    isIncognito: false
-  });
-  const [userData, setUserData] = useState<SlackUserData>({
+  };
+
+  const defaultUserData: SlackUserData = {
     userId: '',
     teamId: '',
     teamName: '',
     userName: '',
     userAvatar: ''
+  };
+
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+  const [currentlyPlayingTrack, setCurrentlyPlayingTrack] = useState<SpotifyTrack>(
+    defaultCurrentlyPlayingTrack
+  );
+  const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>({
+    isIncognito: false
   });
+  const [userData, setUserData] = useState<SlackUserData>(defaultUserData);
 
   const scopes = ['users.profile:write', 'users:read'].join(' ');
   const slackAuthUrl = `https://slack.com/oauth/authorize?client_id=${REACT_APP_SLACK_CLIENT_ID}&scope=${scopes}&redirect_uri=${REACT_APP_SLACK_REDIRECT_URI}`;
 
   useEffect(() => {
     if (isElectron()) {
-      ipcRenderer.send('message-to-main', { type: 'AUTH' });
-      ipcRenderer.send('message-to-main', { type: 'CURRENTLY_PLAYING' });
-      ipcRenderer.send('message-to-main', { type: 'PLAYER_PREFERENCES' });
-      ipcRenderer.send('message-to-main', { type: 'USER_DATA' });
-
       ipcRenderer.on('message-from-main', (e: any, { type, body }: Message) => {
         if (type === 'AUTH') {
+          console.log({ type });
           setIsUserAuthenticated(body);
         } else if (type === 'CURRENTLY_PLAYING') {
           setCurrentlyPlayingTrack(body);
@@ -45,10 +47,26 @@ function App() {
           setPlayerPreferences(body);
         } else if (type === 'USER_DATA') {
           setUserData(body);
+        } else if (type === 'LOGOUT') {
+          // logout success
+          if (body) {
+            setIsUserAuthenticated(false);
+            setUserData(defaultUserData);
+            setCurrentlyPlayingTrack(defaultCurrentlyPlayingTrack);
+          }
         }
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (isElectron()) {
+      ipcRenderer.send('message-to-main', { type: 'AUTH' });
+      ipcRenderer.send('message-to-main', { type: 'CURRENTLY_PLAYING' });
+      ipcRenderer.send('message-to-main', { type: 'PLAYER_PREFERENCES' });
+      ipcRenderer.send('message-to-main', { type: 'USER_DATA' });
+    }
+  }, [isUserAuthenticated]);
 
   return (
     <div className="App" style={{ backgroundColor: '#070518' }}>

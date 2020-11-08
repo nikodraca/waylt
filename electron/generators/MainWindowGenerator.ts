@@ -54,7 +54,7 @@ export class MainWindowGenerator {
           body: this.playerController.getUserData()
         });
 
-        authServer.close();
+        // authServer.close();
 
         this.loadApp(mainWindow);
       }
@@ -129,6 +129,11 @@ export class MainWindowGenerator {
       this.sendMessage(mainWindow, {
         type: 'AUTH',
         body: this.playerController.isUserAuthenticated()
+      });
+    } else if (type === 'LOGOUT') {
+      this.sendMessage(mainWindow, {
+        type: 'LOGOUT',
+        body: this.playerController.logOut()
       });
     } else if (type === 'CURRENTLY_PLAYING') {
       this.sendMessage(mainWindow, {

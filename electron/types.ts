@@ -3,7 +3,8 @@ export type MessageType =
   | 'CURRENTLY_PLAYING'
   | 'PLAYER_PREFERENCES'
   | 'TOGGLE_INCOGNITO'
-  | 'USER_DATA';
+  | 'USER_DATA'
+  | 'LOGOUT';
 
 export interface Message {
   type: MessageType;
