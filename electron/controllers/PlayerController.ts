@@ -101,4 +101,14 @@ export class PlayerController {
   setPlayerPreference(key: keyof PlayerPreferences, value: any) {
     this.store.set(key, value);
   }
+
+  logOut(): boolean {
+    try {
+      this.store.clear();
+    } catch (err) {
+      return false;
+    }
+
+    return true;
+  }
 }

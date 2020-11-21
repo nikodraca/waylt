@@ -89,18 +89,23 @@ export const PlayerContainer = ({
   userData,
   ipcRenderer
 }: PlayerContainerProps): JSX.Element => {
-  const handleClick = () => {
+  const handleBroadcastToggle = () => {
     ipcRenderer.send('message-to-main', { type: 'TOGGLE_INCOGNITO' });
+  };
+
+  const handleLogout = () => {
+    ipcRenderer.send('message-to-main', { type: 'LOGOUT' });
   };
 
   return (
     <Container>
+      <button onClick={handleLogout}>Logout</button>
       <User>
         <UserAvatar src={userData.userAvatar} alt={userData.userId} />
         <UserInfo>
           <UserName>{userData.userName}</UserName>
           <span>{userData.teamName}</span>
-          <BroadcastingButton onClick={handleClick}>
+          <BroadcastingButton onClick={handleBroadcastToggle}>
             <BroadcastStatus isLive={!playerPreferences.isIncognito} />
             {playerPreferences.isIncognito ? 'Not' : 'Live'} Broadcasting
           </BroadcastingButton>

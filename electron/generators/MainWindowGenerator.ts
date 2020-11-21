@@ -132,6 +132,11 @@ export class MainWindowGenerator {
         type: 'AUTH',
         body: this.playerController.isUserAuthenticated()
       });
+    } else if (type === 'LOGOUT') {
+      this.sendMessage(mainWindow, {
+        type: 'LOGOUT',
+        body: this.playerController.logOut()
+      });
     } else if (type === 'CURRENTLY_PLAYING') {
       this.sendMessage(mainWindow, {
         type: 'CURRENTLY_PLAYING',
