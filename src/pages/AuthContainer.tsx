@@ -9,15 +9,6 @@ const AuthContainerWrapper = styled.div`
   height: 100vh;
 `;
 
-const LogoHeader = styled.div`
-  margin-left: 11px;
-  margin-top: 15px;
-`;
-
-const Logo = styled.img`
-  width: 85px;
-`;
-
 const MainContainer = styled.div`
   display: flex;
   width: 100%;
@@ -38,10 +29,6 @@ const MainContainer = styled.div`
 export const AuthContainer = (): JSX.Element => {
   return (
     <AuthContainerWrapper>
-      <LogoHeader>
-        <Logo src="/logo.svg" />
-      </LogoHeader>
-
       <MainContainer>
         <h2>First things first ...</h2>
         <a href="https://slack.com/oauth/v2/authorize?client_id=1182059129521.1447672242117&scope=&user_scope=users.profile:write,users:read">

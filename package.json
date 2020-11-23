@@ -1,5 +1,5 @@
 {
-  "name": "slackify-mac",
+  "name": "songstat.us",
   "version": "1.0.0",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
@@ -17,7 +17,7 @@
     "electron:dist": "electron-builder",
     "eject": "react-scripts eject"
   },
-  "repository": "https://github.com/nikodraca/slackify-mac",
+  "repository": "https://github.com/nikodraca/songstat.us",
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {

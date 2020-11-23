@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
+
 import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../electron/types';
-import { AuthContainer, PlayerContainer } from './components';
+import { AuthContainer, PlayerContainer } from './pages';
+import { Header } from './components';
 
 const electron = window.require('electron');
 const fs = electron.remote.require('fs');
@@ -35,7 +37,6 @@ function App() {
     if (isElectron()) {
       ipcRenderer.on('message-from-main', (e: any, { type, body }: Message) => {
         if (type === 'AUTH') {
-          console.log({ type });
           setIsUserAuthenticated(body);
         } else if (type === 'CURRENTLY_PLAYING') {
           setCurrentlyPlayingTrack(body);
@@ -65,7 +66,8 @@ function App() {
   }, [isUserAuthenticated]);
 
   return (
-    <div className="App" style={{ backgroundColor: '#070518' }}>
+    <div className="App">
+      <Header />
       {isUserAuthenticated ? (
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}
