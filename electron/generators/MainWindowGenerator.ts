@@ -1,8 +1,9 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import * as fs from 'fs';
 import { is } from 'electron-util';
 import * as qs from 'query-string';
-import { createServer } from 'http';
+import { createServer } from 'https';
 
 import { PlayerController } from '../controllers/PlayerController';
 import { Message, MessageType } from '../types';
@@ -36,11 +37,14 @@ export class MainWindowGenerator {
       show: is.development
     });
 
+    const key = fs.readFileSync(path.join(__dirname, '../../key.pem')).toString();
+    const cert = fs.readFileSync(path.join(__dirname, '../../cert.pem')).toString();
+
     /**
      * Create auth web server to intercept OAuth code
      * Once completed, exchange for access token and close server
      */
-    const authServer = createServer(async (req, res) => {
+    const authServer = createServer({ key, cert }, async (req, res) => {
       const isAuthorized = await this.handleAuthRedirect(req.url as string);
 
       if (isAuthorized) {
@@ -53,8 +57,6 @@ export class MainWindowGenerator {
           type: 'USER_DATA',
           body: this.playerController.getUserData()
         });
-
-        // authServer.close();
 
         this.loadApp(mainWindow);
       }

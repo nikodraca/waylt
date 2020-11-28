@@ -4,3 +4,5 @@ dist
 yarn-error.log
 build
 .DS_Store
+
+*.pem

@@ -1,5 +1,5 @@
 {
-  "name": "slackify-mac",
+  "name": "songstat.us",
   "version": "1.0.0",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
@@ -9,7 +9,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "postinstall": "electron-builder install-app-deps",
-    "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/",
+    "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/ ; cp cert.pem build/ ; cp key.pem build/",
     "electron:dev-dist-react": "yarn electron:copy-static && concurrently  \"tsc -p electron -w\" \"tsc -p electron && electron .\"",
     "electron:dev": "yarn electron:copy-static && concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:windev": "yarn electron:copy-static && concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
@@ -17,7 +17,7 @@
     "electron:dist": "electron-builder",
     "eject": "react-scripts eject"
   },
-  "repository": "https://github.com/nikodraca/slackify-mac",
+  "repository": "https://github.com/nikodraca/songstat.us",
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {

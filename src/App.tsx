@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
+
 import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../electron/types';
-import { AuthContainer, PlayerContainer } from './components';
-import { REACT_APP_SLACK_CLIENT_ID, REACT_APP_SLACK_REDIRECT_URI } from './constants';
+import { AuthContainer, PlayerContainer } from './pages';
+import { Header } from './components';
 
 const electron = window.require('electron');
 const fs = electron.remote.require('fs');
@@ -32,14 +33,10 @@ function App() {
   });
   const [userData, setUserData] = useState<SlackUserData>(defaultUserData);
 
-  const scopes = ['users.profile:write', 'users:read'].join(' ');
-  const slackAuthUrl = `https://slack.com/oauth/authorize?client_id=${REACT_APP_SLACK_CLIENT_ID}&scope=${scopes}&redirect_uri=${REACT_APP_SLACK_REDIRECT_URI}`;
-
   useEffect(() => {
     if (isElectron()) {
       ipcRenderer.on('message-from-main', (e: any, { type, body }: Message) => {
         if (type === 'AUTH') {
-          console.log({ type });
           setIsUserAuthenticated(body);
         } else if (type === 'CURRENTLY_PLAYING') {
           setCurrentlyPlayingTrack(body);
@@ -69,7 +66,8 @@ function App() {
   }, [isUserAuthenticated]);
 
   return (
-    <div className="App" style={{ backgroundColor: '#070518' }}>
+    <div className="App">
+      <Header />
       {isUserAuthenticated ? (
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}
@@ -78,7 +76,7 @@ function App() {
           ipcRenderer={ipcRenderer}
         />
       ) : (
-        <AuthContainer slackAuthUrl={slackAuthUrl} />
+        <AuthContainer />
       )}
     </div>
   );
