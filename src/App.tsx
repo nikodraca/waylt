@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import isElectron from 'is-electron';
 
 import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../electron/types';
-import { AuthContainer, PlayerContainer } from './pages';
+import { AuthContainer, PlayerContainer, SettingsContainer } from './pages';
 import { Header } from './components';
 
 const electron = window.require('electron');
@@ -32,6 +32,7 @@ function App() {
     isIncognito: false
   });
   const [userData, setUserData] = useState<SlackUserData>(defaultUserData);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
 
   useEffect(() => {
     if (isElectron()) {
@@ -65,9 +66,20 @@ function App() {
     }
   }, [isUserAuthenticated]);
 
+  const toggleSettingsHandler = () => {
+    setIsSettingsVisible(!isSettingsVisible);
+  };
+
+  /**
+   * I figured we could do without a proper router since the UI is so simple
+   * Instead I use state to toggle what pages are in view
+   */
   return (
     <div className="App">
-      <Header />
+      <Header
+        isUserAuthenticated={isUserAuthenticated}
+        toggleSettingsHandler={toggleSettingsHandler}
+      />
       {isUserAuthenticated ? (
         <PlayerContainer
           currentlyPlayingTrack={currentlyPlayingTrack}
@@ -78,6 +90,8 @@ function App() {
       ) : (
         <AuthContainer />
       )}
+
+      {isSettingsVisible && isUserAuthenticated && <SettingsContainer ipcRenderer={ipcRenderer} />}
     </div>
   );
 }
