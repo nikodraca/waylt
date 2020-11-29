@@ -6,7 +6,7 @@ const AuthContainerWrapper = styled.div`
   background-color: white;
   flex-direction: column;
   width: 100vw;
-  height: 100vh;
+  height: 90vh;
 `;
 
 const MainContainer = styled.div`
