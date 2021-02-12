@@ -11,7 +11,7 @@ export class TrayGenerator {
   }
 
   createTray = (): Tray => {
-    const tray = new Tray(path.join(__dirname, '../static/img/icon.png'));
+    const tray = new Tray(path.join(__dirname, '../static/img/iconTemplate.png'));
     tray.setIgnoreDoubleClickEvents(true);
 
     tray.on('click', () => this.handleClick(this.mainWindow));
