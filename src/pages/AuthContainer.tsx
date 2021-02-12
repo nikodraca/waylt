@@ -18,7 +18,7 @@ const MainContainer = styled.div`
   justify-content: space-evenly;
   align-items: center;
 
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 20px;
   font-style: normal;
   font-weight: 400;
@@ -30,7 +30,7 @@ export const AuthContainer = (): JSX.Element => {
   return (
     <AuthContainerWrapper>
       <MainContainer>
-        <h2>First things first ...</h2>
+        <h2>Sign in to start</h2>
         <a href="https://slack.com/oauth/v2/authorize?client_id=1182059129521.1447672242117&scope=&user_scope=users.profile:write,users:read">
           <img
             alt="Add to Slack"

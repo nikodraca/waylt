@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import Switch from 'react-switch';
 
 import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../../electron/types';
+import { Button } from '../components/Button';
 
 interface PlayerContainerProps {
   currentlyPlayingTrack: SpotifyTrack;
@@ -16,7 +16,7 @@ const Container = styled.div`
   flex-direction: column;
   background-color: white;
   color: white;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
   height: 90vh;
   justify-content: space-between;
 `;
@@ -44,19 +44,19 @@ const UserName = styled.span`
   font-size: 20px;
   font-weight: 700;
   color: #1d1d18;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const UserTeamName = styled.span`
   color: #1d1d18;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
 `;
 
 const CurrentlyPlaying = styled.div`
   display: flex;
   flex-direction: column;
   height: 30vh;
-  background-color: #f4f3fc;
+  background-color: #adaba9;
   justify-content: center;
   align-items: center;
 `;
@@ -66,12 +66,12 @@ const TrackName = styled.div`
   font-size: 1.2em;
   text-align: center;
   margin-bottom: 5px;
-  color: #3f3488;
+  color: black;
 `;
 
 const ArtistName = styled.div`
   font-size: 1em;
-  color: #3f3488;
+  color: black;
 `;
 
 const BroadcastContainer = styled.div`
@@ -81,10 +81,15 @@ const BroadcastContainer = styled.div`
   align-items: center;
 `;
 
-const BroadcastStatusText = styled.span`
-  font-family: 'Montserrat', sans-serif;
-  color: #1d1d18;
-  margin-left: 5%;
+const Dot = styled.span`
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+
+  background-color: ${({ isIncognito }: { isIncognito: boolean }) =>
+    isIncognito ? 'red' : 'green'};
 `;
 
 export const PlayerContainer = ({
@@ -108,20 +113,10 @@ export const PlayerContainer = ({
       </User>
 
       <BroadcastContainer>
-        <Switch
-          checked={!playerPreferences.isIncognito}
-          onChange={handleBroadcastToggle}
-          checkedIcon={false}
-          uncheckedIcon={false}
-          onHandleColor="#60BF65"
-          onColor="#F4F3FC"
-          offHandleColor="#C0BECA"
-          offColor="#F4F3FC"
-        />
-
-        <BroadcastStatusText>
+        <Button onClick={handleBroadcastToggle}>
+          <Dot isIncognito={playerPreferences.isIncognito} />{' '}
           {playerPreferences.isIncognito ? 'Not Broadcasting' : 'Broadcasting Live'}
-        </BroadcastStatusText>
+        </Button>
       </BroadcastContainer>
 
       <CurrentlyPlaying>
