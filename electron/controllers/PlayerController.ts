@@ -5,17 +5,21 @@ import { SlackService } from '../services/SlackService';
 
 import ElectronStore = require('electron-store');
 
+const Filter = require('bad-words');
+
 export class PlayerController {
   private spotifyService: SpotifyService;
   private slackService: SlackService;
   private store: ElectronStore;
   private isUpdating: boolean; // acts as a lock to prevent the AppleScript from running too often
+  private nsfwFilter: typeof Filter;
 
   constructor(spotifyService: SpotifyService, slackService: SlackService, store: ElectronStore) {
     this.spotifyService = spotifyService;
     this.slackService = slackService;
     this.store = store;
     this.isUpdating = false;
+    this.nsfwFilter = new Filter();
   }
 
   hydrateAccessToken() {
@@ -41,7 +45,8 @@ export class PlayerController {
       this.spotifyService.setLastTrack(currentTrack);
 
       const formattedTrackAndArtist = this.spotifyService.getFormattedTrack();
-      await this.slackService.postMessage(formattedTrackAndArtist);
+
+      await this.slackService.postMessage(this.nsfwFilter.clean(formattedTrackAndArtist));
 
       wasUpdated = true;
     }
