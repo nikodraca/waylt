@@ -1,5 +1,5 @@
 {
-  "name": "songstat.us",
+  "name": "waylt",
   "version": "1.0.0",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
@@ -8,16 +8,19 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
     "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/ ; cp cert.pem build/ ; cp key.pem build/",
     "electron:dev-dist-react": "yarn electron:copy-static && concurrently  \"tsc -p electron -w\" \"tsc -p electron && electron .\"",
     "electron:dev": "yarn electron:copy-static && concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:windev": "yarn electron:copy-static && concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:build": "yarn build && tsc -p electron && yarn electron:copy-static",
-    "electron:dist": "electron-builder",
-    "eject": "react-scripts eject"
+    "electron:deploy": "electron-builder build --mac --publish always"
   },
-  "repository": "https://github.com/nikodraca/songstat.us",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikodraca/waylt.git"
+  },
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
@@ -41,6 +44,7 @@
     "electron-is-dev": "^1.2.0",
     "electron-reload": "^1.5.0",
     "electron-store": "^6.0.1",
+    "electron-updater": "^4.3.5",
     "electron-util": "^0.14.2",
     "is-electron": "^2.2.0",
     "query-string": "^6.13.6",

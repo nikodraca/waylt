@@ -3,7 +3,7 @@ import isElectron from 'is-electron';
 
 import { Message, PlayerPreferences, SlackUserData, SpotifyTrack } from '../electron/types';
 import { AuthContainer, PlayerContainer, SettingsContainer } from './pages';
-import { Header } from './components';
+import { Header, Banner } from './components';
 
 const electron = window.require('electron');
 const fs = electron.remote.require('fs');
@@ -33,25 +33,53 @@ function App() {
   });
   const [userData, setUserData] = useState<SlackUserData>(defaultUserData);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>();
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
+  const [isUpdateDownloaded, setIsUpdateDownloaded] = useState<boolean>(false);
 
   useEffect(() => {
     if (isElectron()) {
       ipcRenderer.on('message-from-main', (e: any, { type, body }: Message) => {
-        if (type === 'AUTH') {
-          setIsUserAuthenticated(body);
-        } else if (type === 'CURRENTLY_PLAYING') {
-          setCurrentlyPlayingTrack(body);
-        } else if (type === 'PLAYER_PREFERENCES') {
-          setPlayerPreferences(body);
-        } else if (type === 'USER_DATA') {
-          setUserData(body);
-        } else if (type === 'LOGOUT') {
-          // logout success
-          if (body) {
-            setIsUserAuthenticated(false);
-            setUserData(defaultUserData);
-            setCurrentlyPlayingTrack(defaultCurrentlyPlayingTrack);
-          }
+        switch (type) {
+          case 'AUTH':
+            setIsUserAuthenticated(body);
+            break;
+
+          case 'CURRENTLY_PLAYING':
+            setCurrentlyPlayingTrack(body);
+            break;
+
+          case 'PLAYER_PREFERENCES':
+            setPlayerPreferences(body);
+            break;
+
+          case 'USER_DATA':
+            setUserData(body);
+            break;
+
+          case 'LOGOUT':
+            // logout success
+            if (body) {
+              setIsUserAuthenticated(false);
+              setUserData(defaultUserData);
+              setCurrentlyPlayingTrack(defaultCurrentlyPlayingTrack);
+            }
+            break;
+
+          case 'APP_VERSION':
+            setAppVersion(body);
+            break;
+
+          case 'UPDATE_AVAILABLE':
+            setIsUpdateAvailable(true);
+            break;
+
+          case 'UPDATE_DOWNLOADED':
+            setIsUpdateDownloaded(true);
+            break;
+
+          default:
+            break;
         }
       });
     }
@@ -63,6 +91,7 @@ function App() {
       ipcRenderer.send('message-to-main', { type: 'CURRENTLY_PLAYING' });
       ipcRenderer.send('message-to-main', { type: 'PLAYER_PREFERENCES' });
       ipcRenderer.send('message-to-main', { type: 'USER_DATA' });
+      ipcRenderer.send('message-to-main', { type: 'APP_VERSION' });
     }
   }, [isUserAuthenticated]);
 
@@ -70,6 +99,9 @@ function App() {
     setIsSettingsVisible(!isSettingsVisible);
   };
 
+  const updateAndRestart = () => {
+    ipcRenderer.send('message-to-main', { type: 'RESTART_APP' });
+  };
   /**
    * I figured we could do without a proper router since the UI is so simple
    * Instead I use state to toggle what pages are in view
@@ -92,6 +124,9 @@ function App() {
       )}
 
       {isSettingsVisible && isUserAuthenticated && <SettingsContainer ipcRenderer={ipcRenderer} />}
+      {isUpdateAvailable && isUpdateDownloaded && (
+        <Banner onClick={updateAndRestart} text="New update available" actionText="Restart" />
+      )}
     </div>
   );
 }

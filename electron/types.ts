@@ -4,11 +4,15 @@ export type MessageType =
   | 'PLAYER_PREFERENCES'
   | 'TOGGLE_INCOGNITO'
   | 'USER_DATA'
-  | 'LOGOUT';
+  | 'LOGOUT'
+  | 'APP_VERSION'
+  | 'UPDATE_AVAILABLE'
+  | 'UPDATE_DOWNLOADED'
+  | 'RESTART_APP';
 
 export interface Message {
   type: MessageType;
-  body: any;
+  body?: any;
 }
 
 export interface SlackUserData {
