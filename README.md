@@ -17,6 +17,23 @@ http://waylt.app/
 1. Run `yarn electron:build` to compile
 2. Run `yarn electron:dist` to create `.dmg` file.
 
+### Deploy
+
+1. First run the build command (see `Distribution`)
+2. Run `yarn electron:deploy`. Make sure you have an `electron-builder.yml` file locally that looks like this:
+
+```yml
+appId: com.example.waylt
+publish:
+  provider: github
+  token: <GH_TOKEN>
+extends: null
+files:
+  - ./build/**/*
+  - ./node_modules/**/*
+  - ./package.json
+```
+
 ### Debugging with build
 
 There are cases where you want to debug the production build since the behavior can differ slightly. To do this, first create the `.dmg` (Refer to `Distribution` instructions above) and run the application. Then do the following:
