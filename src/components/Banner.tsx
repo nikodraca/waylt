@@ -10,9 +10,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: baseline;
-  // margin-top: 25px;
   margin-right: 10px;
-  // border: 1px solid black;
   padding: 7px;
   background-color: green;
   color: white;
