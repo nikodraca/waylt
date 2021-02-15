@@ -19,8 +19,9 @@ http://waylt.app/
 
 ### Deploy
 
-1. First run the build command (see `Distribution`)
-2. Run `yarn electron:deploy`. Make sure you have an `electron-builder.yml` file locally that looks like this:
+1. Bump the package version in `package.json`
+2. First run the build command (see `Distribution`)
+3. Run `yarn electron:deploy`. Make sure you have an `electron-builder.yml` file locally that looks like this:
 
 ```yml
 appId: com.example.waylt

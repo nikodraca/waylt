@@ -1,5 +1,6 @@
 import * as runApplescript from 'run-applescript';
 import { SpotifyTrack } from '../types';
+import log from 'electron-log';
 
 export class SpotifyService {
   private lastTrack: SpotifyTrack | undefined;
@@ -28,7 +29,7 @@ export class SpotifyService {
         this.getTrackID()
       ]);
 
-      console.log(
+      log.info(
         JSON.stringify({
           title,
           artist,
@@ -42,7 +43,7 @@ export class SpotifyService {
         id
       };
     } catch (err) {
-      console.log({ err });
+      log.warn({ err });
       return undefined;
     }
   }

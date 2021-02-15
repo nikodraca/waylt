@@ -3,7 +3,24 @@ import styled from 'styled-components';
 
 import { Button } from './Button';
 
-const Container = styled.div``;
+const Container = styled.div`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  // margin-top: 25px;
+  margin-right: 10px;
+  // border: 1px solid black;
+  padding: 7px;
+  background-color: green;
+  color: white;
+`;
+
+const Text = styled.span`
+  margin-right: 25px;
+`;
 
 interface BannerProps {
   text: string;
@@ -14,7 +31,7 @@ interface BannerProps {
 export const Banner = ({ text, onClick, actionText }: BannerProps) => {
   return (
     <Container>
-      {text}
+      <Text>{text}</Text>
       <Button onClick={onClick}>{actionText}</Button>
     </Container>
   );

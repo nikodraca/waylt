@@ -8,7 +8,8 @@ export type MessageType =
   | 'APP_VERSION'
   | 'UPDATE_AVAILABLE'
   | 'UPDATE_DOWNLOADED'
-  | 'RESTART_APP';
+  | 'RESTART_APP'
+  | 'CHECKING_UPDATE';
 
 export interface Message {
   type: MessageType;

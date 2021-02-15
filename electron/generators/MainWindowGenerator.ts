@@ -5,6 +5,7 @@ import { is } from 'electron-util';
 import * as qs from 'query-string';
 import { createServer } from 'https';
 import { autoUpdater } from 'electron-updater';
+import log from 'electron-log';
 
 import { PlayerController } from '../controllers/PlayerController';
 import { Message, MessageType } from '../types';
@@ -39,20 +40,34 @@ export class MainWindowGenerator {
       show: is.development
     });
 
-    mainWindow.on('ready-to-show', () => {
+    mainWindow.on('show', () => {
+      log.info('show');
       autoUpdater.checkForUpdatesAndNotify();
     });
 
+    autoUpdater.on('checking-for-update', () => {
+      log.info('checking-for-update');
+      this.sendMessage(mainWindow, {
+        type: 'CHECKING_UPDATE'
+      });
+    });
+
     autoUpdater.on('update-available', () => {
+      log.info('update-available');
       this.sendMessage(mainWindow, {
         type: 'UPDATE_AVAILABLE'
       });
     });
 
     autoUpdater.on('update-downloaded', () => {
+      log.info('update-downloaded');
       this.sendMessage(mainWindow, {
         type: 'UPDATE_DOWNLOADED'
       });
+    });
+
+    autoUpdater.on('error', (err) => {
+      log.info('err', err);
     });
 
     const key = fs.readFileSync(path.join(__dirname, '../../key.pem')).toString();

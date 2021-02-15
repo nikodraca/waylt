@@ -36,6 +36,7 @@ function App() {
   const [appVersion, setAppVersion] = useState<string>();
   const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
   const [isUpdateDownloaded, setIsUpdateDownloaded] = useState<boolean>(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(false);
 
   useEffect(() => {
     if (isElectron()) {
@@ -78,6 +79,10 @@ function App() {
             setIsUpdateDownloaded(true);
             break;
 
+          case 'CHECKING_UPDATE':
+            setIsCheckingUpdate(true);
+            break;
+
           default:
             break;
         }
@@ -100,8 +105,11 @@ function App() {
   };
 
   const updateAndRestart = () => {
-    ipcRenderer.send('message-to-main', { type: 'RESTART_APP' });
+    if (isElectron()) {
+      ipcRenderer.send('message-to-main', { type: 'RESTART_APP' });
+    }
   };
+
   /**
    * I figured we could do without a proper router since the UI is so simple
    * Instead I use state to toggle what pages are in view
