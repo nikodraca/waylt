@@ -33,6 +33,8 @@ files:
   - ./build/**/*
   - ./node_modules/**/*
   - ./package.json
+directories:
+  buildResources: assets
 ```
 
 ### Debugging with build
