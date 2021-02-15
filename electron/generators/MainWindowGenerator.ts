@@ -4,9 +4,12 @@ import * as fs from 'fs';
 import { is } from 'electron-util';
 import * as qs from 'query-string';
 import { createServer } from 'https';
+import { autoUpdater } from 'electron-updater';
+import log from 'electron-log';
 
 import { PlayerController } from '../controllers/PlayerController';
 import { Message, MessageType } from '../types';
+import { version } from '../../package.json';
 
 export class MainWindowGenerator {
   playerController: PlayerController;
@@ -35,6 +38,36 @@ export class MainWindowGenerator {
       fullscreenable: false,
       resizable: false,
       show: is.development
+    });
+
+    mainWindow.on('show', () => {
+      log.info('show');
+      autoUpdater.checkForUpdatesAndNotify();
+    });
+
+    autoUpdater.on('checking-for-update', () => {
+      log.info('checking-for-update');
+      this.sendMessage(mainWindow, {
+        type: 'CHECKING_UPDATE'
+      });
+    });
+
+    autoUpdater.on('update-available', () => {
+      log.info('update-available');
+      this.sendMessage(mainWindow, {
+        type: 'UPDATE_AVAILABLE'
+      });
+    });
+
+    autoUpdater.on('update-downloaded', () => {
+      log.info('update-downloaded');
+      this.sendMessage(mainWindow, {
+        type: 'UPDATE_DOWNLOADED'
+      });
+    });
+
+    autoUpdater.on('error', (err) => {
+      log.info('err', err);
     });
 
     const key = fs.readFileSync(path.join(__dirname, '../../key.pem')).toString();
@@ -127,43 +160,68 @@ export class MainWindowGenerator {
   }
 
   private generateIpcMessageHandlers(mainWindow: BrowserWindow, type: MessageType) {
-    if (type === 'AUTH') {
-      this.sendMessage(mainWindow, {
-        type: 'AUTH',
-        body: this.playerController.isUserAuthenticated()
-      });
-    } else if (type === 'LOGOUT') {
-      this.sendMessage(mainWindow, {
-        type: 'LOGOUT',
-        body: this.playerController.logOut()
-      });
-    } else if (type === 'CURRENTLY_PLAYING') {
-      this.sendMessage(mainWindow, {
-        type: 'CURRENTLY_PLAYING',
-        body: this.playerController.getCurrentlyPlayingTrack()
-      });
-    } else if (type === 'PLAYER_PREFERENCES') {
-      this.sendMessage(mainWindow, {
-        type: 'PLAYER_PREFERENCES',
-        body: this.playerController.getPlayerPreferences()
-      });
-    } else if (type === 'TOGGLE_INCOGNITO') {
-      const playerPreferences = this.playerController.getPlayerPreferences();
-      this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
-
-      this.sendMessage(mainWindow, {
-        type: 'PLAYER_PREFERENCES',
-        body: this.playerController.getPlayerPreferences()
-      });
-    } else if (type === 'USER_DATA') {
-      const userData = this.playerController.getUserData();
-
-      if (userData) {
+    switch (type) {
+      case 'AUTH':
         this.sendMessage(mainWindow, {
-          type: 'USER_DATA',
-          body: userData
+          type: 'AUTH',
+          body: this.playerController.isUserAuthenticated()
         });
-      }
+        break;
+
+      case 'LOGOUT':
+        this.sendMessage(mainWindow, {
+          type: 'LOGOUT',
+          body: this.playerController.logOut()
+        });
+        break;
+
+      case 'CURRENTLY_PLAYING':
+        this.sendMessage(mainWindow, {
+          type: 'CURRENTLY_PLAYING',
+          body: this.playerController.getCurrentlyPlayingTrack()
+        });
+        break;
+
+      case 'PLAYER_PREFERENCES':
+        this.sendMessage(mainWindow, {
+          type: 'PLAYER_PREFERENCES',
+          body: this.playerController.getPlayerPreferences()
+        });
+        break;
+
+      case 'TOGGLE_INCOGNITO':
+        const playerPreferences = this.playerController.getPlayerPreferences();
+        this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
+
+        this.sendMessage(mainWindow, {
+          type: 'PLAYER_PREFERENCES',
+          body: this.playerController.getPlayerPreferences()
+        });
+        break;
+
+      case 'USER_DATA':
+        const userData = this.playerController.getUserData();
+
+        if (userData) {
+          this.sendMessage(mainWindow, {
+            type: 'USER_DATA',
+            body: userData
+          });
+        }
+        break;
+      case 'APP_VERSION':
+        this.sendMessage(mainWindow, {
+          type: 'APP_VERSION',
+          body: version
+        });
+        break;
+
+      case 'RESTART_APP':
+        autoUpdater.quitAndInstall();
+        break;
+
+      default:
+        break;
     }
   }
 }

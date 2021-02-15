@@ -1,5 +1,5 @@
 {
-  "name": "songstat.us",
+  "name": "waylt",
   "version": "1.0.0",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
@@ -8,19 +8,24 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
     "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/ ; cp cert.pem build/ ; cp key.pem build/",
     "electron:dev-dist-react": "yarn electron:copy-static && concurrently  \"tsc -p electron -w\" \"tsc -p electron && electron .\"",
     "electron:dev": "yarn electron:copy-static && concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:windev": "yarn electron:copy-static && concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:build": "yarn build && tsc -p electron && yarn electron:copy-static",
-    "electron:dist": "electron-builder",
-    "eject": "react-scripts eject"
+    "electron:dist": "electron-builder build --mac --publish never --config electron-builder.yml",
+    "electron:deploy": "electron-builder build --mac --publish always --config electron-builder.yml"
   },
-  "repository": "https://github.com/nikodraca/songstat.us",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikodraca/waylt.git"
+  },
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "@types/bad-words": "^3.0.0",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/node": "12",
     "@types/react": "16.9.53",
@@ -32,37 +37,28 @@
     "wait-on": "^5.2.0"
   },
   "dependencies": {
-    "@types/bad-words": "^3.0.0",
     "axios": "^0.21.0",
     "axios-retry": "^3.1.9",
     "bad-words": "^3.0.4",
     "dotenv": "^8.2.0",
     "electron-devtools-installer": "^3.1.1",
     "electron-is-dev": "^1.2.0",
+    "electron-log": "^4.3.1",
     "electron-reload": "^1.5.0",
     "electron-store": "^6.0.1",
+    "electron-updater": "^4.3.5",
     "electron-util": "^0.14.2",
     "is-electron": "^2.2.0",
     "query-string": "^6.13.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-scripts": "3.4.3",
+    "react-scripts": "^4.0.2",
     "run-applescript": "^4.0.0",
     "styled-components": "^5.2.0",
     "typescript": "^4.0.5"
   },
   "eslintConfig": {
     "extends": "react-app"
-  },
-  "build": {
-    "extends": null,
-    "files": [
-      "build/**/*",
-      "node_modules/**/*"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    }
   },
   "browserslist": {
     "production": [
