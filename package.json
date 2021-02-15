@@ -1,6 +1,6 @@
 {
   "name": "waylt",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
   "homepage": ".",
