@@ -40,21 +40,19 @@ export class SlackService {
     this.slackAccessToken = accessToken;
   }
 
-  async fetchUserData(userId: string): Promise<SlackUserData> {
-    const query = qs.stringify({
-      user: userId
-    });
-
-    const res = await axios.get(`https://slack.com/api/users.info?${query}`, {
+  async fetchUserData(): Promise<SlackUserData> {
+    const res = await axios.get(`https://slack.com/api/users.identity`, {
       headers: { Authorization: `Bearer ${this.slackAccessToken}` }
     });
 
     if (res.data.ok === true) {
-      const { real_name, image_192 } = res.data.user.profile;
+      const { name, image_72 } = res.data.user;
+      const { name: teamName } = res.data.team;
 
       if (this.userData) {
-        this.userData.userName = real_name;
-        this.userData.userAvatar = image_192;
+        this.userData.userName = name;
+        this.userData.userAvatar = image_72;
+        this.userData.teamName = teamName;
 
         return this.userData;
       }
