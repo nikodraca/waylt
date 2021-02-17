@@ -1,6 +1,6 @@
 {
   "name": "waylt",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Broadcast what you're listening to on Spotify as a Slack status",
   "main": "build/electron/main.js",
   "homepage": ".",
@@ -10,7 +10,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "electron-builder install-app-deps",
-    "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/ ; cp cert.pem build/ ; cp key.pem build/",
+    "electron:copy-static": "mkdir -p build/electron/static ; cp -R electron/static build/electron/ ; cp cert.pem build/ ; cp key.pem build/ ; cp entitlements.mac.inherit.plist build/",
     "electron:dev-dist-react": "yarn electron:copy-static && concurrently  \"tsc -p electron -w\" \"tsc -p electron && electron .\"",
     "electron:dev": "yarn electron:copy-static && concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
     "electron:windev": "yarn electron:copy-static && concurrently \"SET BROWSER=none && yarn start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\"",
