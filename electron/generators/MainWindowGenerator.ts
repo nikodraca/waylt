@@ -147,8 +147,9 @@ export class MainWindowGenerator {
     const { code } = parsedQueryString.query;
 
     if (code && Object.keys(parsedQueryString.query).includes('state')) {
-      const { userId } = await this.playerController.exchangeUserCodeForAccessToken(code as string);
-      await this.playerController.fetchUserData(userId);
+      await this.playerController.exchangeUserCodeForAccessToken(code as string);
+      await this.playerController.fetchUserData();
+
       isAuthorized = true;
     }
 
