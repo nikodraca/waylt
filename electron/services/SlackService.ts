@@ -18,21 +18,20 @@ export class SlackService {
   async exchangeCodeForAccessToken(
     code: string
   ): Promise<{ slackAccessToken: string; userData: SlackUserData }> {
-    const { userId, teamId, teamName, accessToken } = await this.authService.getAuthData(code);
+    const { userId, teamId, accessToken } = await this.authService.getAuthData(code);
 
     if (!accessToken) {
       throw new Error('Unable to authorize user');
     }
 
     this.setAccessToken(accessToken);
-    this.userData = { userId, teamId, teamName };
+    this.userData = { userId, teamId };
 
     return {
       slackAccessToken: accessToken,
       userData: {
         userId,
-        teamId,
-        teamName
+        teamId
       }
     };
   }
@@ -62,6 +61,28 @@ export class SlackService {
     }
 
     throw new Error('Unable to fetch user data');
+  }
+
+  async fetchTeamData(teamId: string): Promise<any> {
+    const query = qs.stringify({
+      user: teamId
+    });
+
+    const res = await axios.get(`https://slack.com/api/team.info?${query}`, {
+      headers: { Authorization: `Bearer ${this.slackAccessToken}` }
+    });
+
+    if (res.data.ok === true) {
+      const { name } = res.data.team;
+
+      if (this.userData) {
+        this.userData.teamName = name;
+
+        return this.userData;
+      }
+    }
+
+    throw new Error('Unable to fetch team data');
   }
 
   async postMessage(message: string) {
