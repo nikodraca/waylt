@@ -24,7 +24,7 @@ http://waylt.app/
 3. Run `yarn electron:deploy`. Make sure you have an `electron-builder.yml` file locally that looks like this:
 
 ```yml
-appId: com.example.waylt
+appId: com.waylt.electron
 publish:
   provider: github
   token: <GH_TOKEN>
@@ -35,7 +35,13 @@ files:
   - ./package.json
 directories:
   buildResources: assets
+mac:
+  hardenedRuntime: true
+  entitlements: ./build/entitlements.mac.inherit.plist
+afterSign: ./notarize.js
 ```
+
+You should also add `APPLEID`, `APPLEIDPASS` as per the electron-notarize [docs](https://github.com/electron/electron-notarize#prerequisites).
 
 ### Debugging with build
 
