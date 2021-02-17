@@ -19,7 +19,7 @@ export interface Message {
 export interface SlackUserData {
   userId: string;
   teamId: string;
-  teamName: string;
+  teamName?: string;
   userName?: string;
   userAvatar?: string;
 }

@@ -74,6 +74,7 @@ export class PlayerController {
 
   async fetchUserData(userId: string) {
     const userData = await this.slackService.fetchUserData(userId);
+    await this.slackService.fetchTeamData(userData.teamId);
 
     this.store.set('slackUserData', userData);
     return userData;
