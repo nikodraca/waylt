@@ -47,7 +47,7 @@ export class PlayerController {
 
       const formattedTrackAndArtist = this.spotifyService.getFormattedTrack();
 
-      await this.slackService.postMessage(this.nsfwFilter.clean(formattedTrackAndArtist));
+      await this.slackService.postStatus(this.nsfwFilter.clean(formattedTrackAndArtist));
 
       wasUpdated = true;
     }
@@ -97,6 +97,10 @@ export class PlayerController {
     }
 
     return !!this.store.get('isIncognito');
+  }
+
+  async unsetStatus() {
+    await this.slackService.unsetStatus();
   }
 
   getUserData(): SlackUserData | undefined {

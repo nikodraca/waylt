@@ -87,7 +87,7 @@ export class SlackService {
     }
   }
 
-  async postMessage(message: string) {
+  async postStatus(message: string) {
     try {
       const res = await axios.post(
         `https://slack.com/api/users.profile.set`,
@@ -96,6 +96,29 @@ export class SlackService {
             status_text: message,
             status_emoji: ':musical_note:',
             status_expiration: 0
+          }
+        },
+        {
+          headers: { Authorization: `Bearer ${this.slackAccessToken}` }
+        }
+      );
+
+      if (!res.data.ok) {
+        throw new Error(JSON.stringify(res.data));
+      }
+    } catch (err) {
+      log.error(err);
+    }
+  }
+
+  async unsetStatus() {
+    try {
+      const res = await axios.post(
+        `https://slack.com/api/users.profile.set`,
+        {
+          profile: {
+            status_text: '',
+            status_emoji: ''
           }
         },
         {
