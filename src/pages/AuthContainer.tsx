@@ -31,13 +31,13 @@ export const AuthContainer = (): JSX.Element => {
     <AuthContainerWrapper>
       <MainContainer>
         <h2>Sign in to start</h2>
-        <a href="https://slack.com/oauth/v2/authorize?user_scope=identity.basic,identity.email,identity.team,identity.avatar&client_id=1182059129521.1447672242117">
+        <a href="https://slack.com/oauth/v2/authorize?client_id=1182059129521.1447672242117&scope=&user_scope=users.profile:write,users.profile:read,team:read">
           <img
-            alt="Sign in with Slack"
+            alt="Add to Slack"
             height="40"
-            width="172"
-            src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
-            srcSet="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x"
+            width="139"
+            src="https://platform.slack-edge.com/img/add_to_slack.png"
+            srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
           />
         </a>
       </MainContainer>
