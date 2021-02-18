@@ -160,7 +160,7 @@ export class MainWindowGenerator {
     mainWindow.webContents.send('message-from-main', message);
   }
 
-  private generateIpcMessageHandlers(mainWindow: BrowserWindow, type: MessageType) {
+  private async generateIpcMessageHandlers(mainWindow: BrowserWindow, type: MessageType) {
     switch (type) {
       case 'AUTH':
         this.sendMessage(mainWindow, {
@@ -193,6 +193,10 @@ export class MainWindowGenerator {
       case 'TOGGLE_INCOGNITO':
         const playerPreferences = this.playerController.getPlayerPreferences();
         this.playerController.setPlayerPreference('isIncognito', !playerPreferences.isIncognito);
+
+        if (this.playerController.getPlayerPreferences().isIncognito) {
+          await this.playerController.unsetStatus();
+        }
 
         this.sendMessage(mainWindow, {
           type: 'PLAYER_PREFERENCES',
