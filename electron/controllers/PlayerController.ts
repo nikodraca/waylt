@@ -1,5 +1,6 @@
-import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../types';
+import log from 'electron-log';
 
+import { PlayerPreferences, SlackUserData, SpotifyTrack } from '../types';
 import { SpotifyService } from '../services/SpotifyService';
 import { SlackService } from '../services/SlackService';
 
@@ -64,7 +65,13 @@ export class PlayerController {
   }
 
   async exchangeUserCodeForAccessToken(code: string): Promise<SlackUserData> {
-    const { slackAccessToken, userData } = await this.slackService.exchangeCodeForAccessToken(code);
+    const codeExchangeResponse = await this.slackService.exchangeCodeForAccessToken(code);
+
+    if (!codeExchangeResponse?.slackAccessToken || !codeExchangeResponse?.userData) {
+      throw new Error('Unable to exchange code');
+    }
+
+    const { userData, slackAccessToken } = codeExchangeResponse;
 
     this.store.set('slackAccessToken', slackAccessToken);
     this.store.set('slackUserData', userData);
@@ -74,6 +81,7 @@ export class PlayerController {
 
   async fetchUserData() {
     const userData = await this.slackService.fetchUserData();
+    const teamData = await this.slackService.fetchTeamData();
 
     this.store.set('slackUserData', userData);
     return userData;

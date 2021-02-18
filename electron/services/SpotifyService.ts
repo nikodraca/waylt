@@ -29,13 +29,13 @@ export class SpotifyService {
         this.getTrackID()
       ]);
 
-      log.info(
-        JSON.stringify({
-          title,
-          artist,
-          id
-        })
-      );
+      // log.info(
+      //   JSON.stringify({
+      //     title,
+      //     artist,
+      //     id
+      //   })
+      // );
 
       return {
         title,

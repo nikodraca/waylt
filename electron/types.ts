@@ -33,3 +33,8 @@ export interface SpotifyTrack {
   title: string;
   artist: string;
 }
+
+export interface SlackCodeExchangeResponse {
+  slackAccessToken: string;
+  userData: SlackUserData;
+}
